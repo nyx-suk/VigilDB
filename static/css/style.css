@@ -1,0 +1,191 @@
+/* 
+   Crime Record & FIR Management System - Stylesheet
+   Modern, elegant dark/premium aesthetic overrides.
+*/
+
+:root {
+    --primary-color: #6366f1; /* Premium Indigo */
+    --primary-glow: rgba(99, 102, 241, 0.15);
+    --secondary-color: #10b981; /* Emerald Green */
+    --dark-bg: #0f172a; /* Slate 900 */
+    --card-bg: #1e293b; /* Slate 800 */
+    --navbar-bg: #111827; /* Gray 900 */
+    --text-primary: #f8fafc; /* Slate 50 */
+    --text-secondary: #94a3b8; /* Slate 400 */
+    --border-color: rgba(255, 255, 255, 0.08);
+}
+
+body {
+    background-color: var(--dark-bg);
+    color: var(--text-primary);
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow-x: hidden;
+}
+
+/* Base Container & Spacing */
+.main-wrapper {
+    flex: 1;
+    padding: 3rem 0;
+}
+
+/* Navbar Premium Styling */
+.navbar {
+    background-color: var(--navbar-bg) !important;
+    border-bottom: 1px solid var(--border-color);
+    backdrop-filter: blur(10px);
+    padding: 1rem 0;
+}
+
+.navbar-brand {
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    background: linear-gradient(135deg, #a5b4fc 0%, #6366f1 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.nav-link {
+    font-weight: 500;
+    color: var(--text-secondary) !important;
+    transition: color 0.3s ease, transform 0.2s ease;
+    margin: 0 0.5rem;
+}
+
+.nav-link:hover, .nav-link.active {
+    color: var(--primary-color) !important;
+    transform: translateY(-1px);
+}
+
+/* Dashboard Premium Cards */
+.stat-card {
+    background: linear-gradient(145deg, #1e293b 0%, #0f172a 100%);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 2rem;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    height: 100%;
+}
+
+.stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary-color), #ec4899);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-8px);
+    border-color: rgba(99, 102, 241, 0.4);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 0 30px var(--primary-glow);
+}
+
+.stat-card:hover::before {
+    opacity: 1;
+}
+
+.stat-icon-wrapper {
+    width: 60px;
+    height: 60px;
+    border-radius: 12px;
+    background: rgba(99, 102, 241, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary-color);
+    margin-bottom: 1.5rem;
+    font-size: 1.8rem;
+    transition: transform 0.3s ease;
+}
+
+.stat-card:hover .stat-icon-wrapper {
+    transform: scale(1.1) rotate(5deg);
+    background: var(--primary-color);
+    color: #ffffff;
+}
+
+.stat-card .card-title {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 600;
+}
+
+.stat-card .card-value {
+    color: var(--text-primary);
+    font-size: 3rem;
+    font-weight: 800;
+    margin-top: 0.5rem;
+    line-height: 1;
+}
+
+.stat-card .card-link {
+    text-decoration: none;
+    color: var(--primary-color);
+    font-size: 0.9rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    margin-top: 1.5rem;
+    transition: color 0.3s ease;
+}
+
+.stat-card .card-link:hover {
+    color: #818cf8;
+}
+
+.stat-card .card-link i {
+    margin-left: 0.5rem;
+    transition: transform 0.2s ease;
+}
+
+.stat-card .card-link:hover i {
+    transform: translateX(4px);
+}
+
+/* Alert/Flash Styling */
+.alert {
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    background-color: var(--card-bg);
+    color: var(--text-primary);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+}
+
+.alert-success {
+    border-left: 5px solid var(--secondary-color);
+}
+
+.alert-danger {
+    border-left: 5px solid #ef4444;
+}
+
+/* Footer Premium Styling */
+footer {
+    background-color: var(--navbar-bg);
+    border-top: 1px solid var(--border-color);
+    padding: 1.5rem 0;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin-top: auto;
+}
+
+/* Tables and Highlights */
+.table {
+    color: var(--text-primary);
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.02) !important;
+    transition: background-color 0.2s ease;
+}

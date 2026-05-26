@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row mb-4 align-items-center">
+    <div class="col-sm-6">
+        <h2 class="text-white fw-bold mb-0">
+            <i class="bi bi-person-badge text-indigo-400 me-2"></i> Officers Directory
+        </h2>
+        <p class="text-secondary mb-0">Manage investigating officers, badge credentials, and station alignments.</p>
+    </div>
+    <div class="col-sm-6 text-sm-end mt-3 mt-sm-0">
+        <a href="/officers/new" class="btn btn-primary px-4 py-2 rounded-3 shadow" style="background-color: var(--primary-color); border: none;">
+            <i class="bi bi-plus-lg me-2"></i> Add New Officer
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="card border border-secondary border-opacity-10 rounded-4 overflow-hidden" style="background-color: var(--card-bg);">
+            <div class="card-body p-0">
+                {% if officers %}
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0" style="color: var(--text-primary);">
+                            <thead style="background-color: rgba(255,255,255,0.02); border-bottom: 1px solid rgba(255,255,255,0.08);">
+                                <tr>
+                                    <th class="px-4 py-3 text-secondary text-uppercase fs-8" style="width: 80px;">ID</th>
+                                    <th class="py-3 text-secondary text-uppercase fs-8">Officer Name</th>
+                                    <th class="py-3 text-secondary text-uppercase fs-8">Badge Number</th>
+                                    <th class="py-3 text-secondary text-uppercase fs-8">Rank</th>
+                                    <th class="py-3 text-secondary text-uppercase fs-8">Assigned Station</th>
+                                    <th class="py-3 text-secondary text-uppercase fs-8">Contact Info</th>
+                                    <th class="px-4 py-3 text-secondary text-uppercase fs-8 text-center" style="width: 200px;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for officer in officers %}
+                                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                                        <td class="px-4 fw-bold text-secondary">#{{ officer.officer_id }}</td>
+                                        <td class="fw-semibold text-white">
+                                            <i class="bi bi-person-fill text-indigo-300 me-2"></i>{{ officer.name }}
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-dark border border-secondary border-opacity-50 text-white font-monospace px-2 py-1">
+                                                {{ officer.badge_number }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-indigo-500 bg-opacity-15 text-indigo-300 border border-indigo-500 border-opacity-10 px-2 py-1">
+                                                {{ officer.rank }}
+                                            </span>
+                                        </td>
+                                        <td class="text-white fw-medium">
+                                            <i class="bi bi-building text-secondary me-1"></i>{{ officer.station_name }}
+                                        </td>
+                                        <td>
+                                            <div class="text-white">{{ officer.contact }}</div>
+                                            <div class="fs-7 text-secondary" style="font-size: 0.8rem;">{{ officer.email }}</div>
+                                        </td>
+                                        <td class="px-4 text-center">
+                                            <div class="d-flex justify-content-center gap-2">
+                                                <!-- Edit Button -->
+                                                <a href="/officers/{{ officer.officer_id }}/edit" class="btn btn-outline-info btn-sm px-3 py-1 rounded-2" title="Edit Officer">
+                                                    <i class="bi bi-pencil-square"></i> Edit
+                                                </a>
+                                                <!-- Delete Button Form -->
+                                                <form action="/officers/{{ officer.officer_id }}/delete" method="POST" onsubmit="return confirm('Are you sure you want to permanently delete this officer record?');">
+                                                    <button type="submit" class="btn btn-outline-danger btn-sm px-3 py-1 rounded-2" title="Delete Officer">
+                                                        <i class="bi bi-trash-fill"></i> Delete
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <!-- Empty State -->
+                    <div class="p-5 text-center">
+                        <div class="stat-icon-wrapper mx-auto" style="width: 80px; height: 80px; font-size: 2.5rem; border-radius: 50%;">
+                            <i class="bi bi-person-badge"></i>
+                        </div>
+                        <h4 class="text-white mt-4">No Officers Enrolled</h4>
+                        <p class="text-secondary mx-auto mb-4" style="max-width: 400px;">
+                            There are currently no active officers in the database directory. Add a new officer node to represent security staff.
+                        </p>
+                        <a href="/officers/new" class="btn btn-primary px-4 py-2 rounded-3" style="background-color: var(--primary-color); border: none;">
+                            <i class="bi bi-plus-lg me-2"></i> Register First Officer
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

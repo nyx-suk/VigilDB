@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- Welcome/Hero Banner Section -->
+<div class="row mb-5 justify-content-center">
+    <div class="col-lg-10 text-center">
+        <div class="p-5 rounded-4 shadow-sm" style="background: linear-gradient(135deg, rgba(30, 41, 59, 0.7) 0%, rgba(15, 23, 42, 0.9) 100%); border: 1px solid rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px);">
+            <div class="badge bg-indigo-500 text-uppercase mb-3 px-3 py-2 text-white" style="background-color: var(--primary-color); font-weight: 600; letter-spacing: 1px; font-size: 0.8rem;">
+                <i class="bi bi-cpu-fill me-1"></i> Active System Node
+            </div>
+            <h1 class="display-5 fw-bold text-white mb-3">Crime Record & FIR Management System</h1>
+            <p class="lead text-secondary mx-auto" style="max-width: 750px;">
+                A comprehensive digital terminal designed for administrative officers and investigating authorities. Enforcing explicit relational logic, evidence vault tracking, and secure audit logs.
+            </p>
+            <div class="mt-4 d-flex justify-content-center gap-3">
+                <span class="d-flex align-items-center text-success bg-success bg-opacity-10 border border-success border-opacity-20 px-3 py-2 rounded-3 fs-7">
+                    <i class="bi bi-circle-fill me-2 fs-8 animated-pulse" style="font-size: 0.6rem;"></i> 
+                    MySQL: Connected
+                </span>
+                <span class="d-flex align-items-center text-info bg-info bg-opacity-10 border border-info border-opacity-20 px-3 py-2 rounded-3 fs-7">
+                    <i class="bi bi-shield-check me-2"></i> 
+                    Engine: InnoDB
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Dashboard Stats Counters -->
+<div class="row g-4 justify-content-center">
+    <!-- Total Stations Card (Blue Accent) -->
+    <div class="col-md-6 col-lg-3">
+        <div class="stat-card border-primary" style="border-left: 4px solid #0d6efd !important;">
+            <div class="stat-icon-wrapper" style="color: #0d6efd; background: rgba(13, 110, 253, 0.1);">
+                <i class="bi bi-building"></i>
+            </div>
+            <div class="card-title">Total Stations</div>
+            <div class="card-value text-white">{{ counts.stations }}</div>
+            <a href="/stations" class="card-link" style="color: #0d6efd;">
+                View All <i class="bi bi-arrow-right"></i>
+            </a>
+        </div>
+    </div>
+
+    <!-- Total Officers Card (Green Accent) -->
+    <div class="col-md-6 col-lg-3">
+        <div class="stat-card border-success" style="border-left: 4px solid #198754 !important;">
+            <div class="stat-icon-wrapper" style="color: #198754; background: rgba(25, 135, 84, 0.1);">
+                <i class="bi bi-person-badge"></i>
+            </div>
+            <div class="card-title">Total Officers</div>
+            <div class="card-value text-white">{{ counts.officers }}</div>
+            <a href="/officers" class="card-link" style="color: #198754;">
+                View All <i class="bi bi-arrow-right"></i>
+            </a>
+        </div>
+    </div>
+
+    <!-- Total Complainants Card (Orange Accent) -->
+    <div class="col-md-6 col-lg-3">
+        <div class="stat-card border-warning" style="border-left: 4px solid #fd7e14 !important;">
+            <div class="stat-icon-wrapper" style="color: #fd7e14; background: rgba(253, 126, 20, 0.1);">
+                <i class="bi bi-people"></i>
+            </div>
+            <div class="card-title">Total Complainants</div>
+            <div class="card-value text-white">{{ counts.complainants }}</div>
+            <a href="/complainants" class="card-link" style="color: #fd7e14;">
+                View All <i class="bi bi-arrow-right"></i>
+            </a>
+        </div>
+    </div>
+
+    <!-- Total FIRs Card (Red Accent) -->
+    <div class="col-md-6 col-lg-3">
+        <div class="stat-card border-danger" style="border-left: 4px solid #dc3545 !important;">
+            <div class="stat-icon-wrapper" style="color: #dc3545; background: rgba(220, 53, 69, 0.1);">
+                <i class="bi bi-file-earmark-ruled"></i>
+            </div>
+            <div class="card-title">Total FIRs</div>
+            <div class="card-value text-white">{{ counts.firs }}</div>
+            <a href="/firs" class="card-link" style="color: #dc3545;">
+                View All <i class="bi bi-arrow-right"></i>
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions Section -->
+<div class="row mt-5 justify-content-center">
+    <div class="col-lg-10">
+        <div class="card border border-secondary border-opacity-10 rounded-4 p-4 shadow" style="background-color: var(--card-bg);">
+            <h4 class="text-white fw-bold mb-3 d-flex align-items-center">
+                <i class="bi bi-lightning-charge-fill text-warning me-2"></i> Quick Actions
+            </h4>
+            <p class="text-secondary mb-4">Jump directly into data enrollment or record modification nodes.</p>
+            <div class="row g-3">
+                <!-- Register Complainant -->
+                <div class="col-md-4">
+                    <a href="/complainants/new" class="btn btn-outline-warning w-100 py-3 rounded-3 d-flex align-items-center justify-content-center gap-2">
+                        <i class="bi bi-person-plus-fill"></i> Register Complainant
+                    </a>
+                </div>
+                <!-- Add Officer -->
+                <div class="col-md-4">
+                    <a href="/officers/new" class="btn btn-outline-success w-100 py-3 rounded-3 d-flex align-items-center justify-content-center gap-2">
+                        <i class="bi bi-person-badge-fill"></i> Add Officer
+                    </a>
+                </div>
+                <!-- Add Station -->
+                <div class="col-md-4">
+                    <a href="/stations/new" class="btn btn-outline-primary w-100 py-3 rounded-3 d-flex align-items-center justify-content-center gap-2">
+                        <i class="bi bi-building-fill"></i> Add Station
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
