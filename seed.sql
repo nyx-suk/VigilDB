@@ -1,78 +1,97 @@
 USE fir_db;
 
+SET FOREIGN_KEY_CHECKS=0;
+TRUNCATE TABLE investigation;
+TRUNCATE TABLE evidence;
+TRUNCATE TABLE accused;
+TRUNCATE TABLE fir;
+TRUNCATE TABLE complainant;
+TRUNCATE TABLE officer;
+TRUNCATE TABLE station;
+SET FOREIGN_KEY_CHECKS=1;
+
 -- 1. Populate 'station' (7 rows)
 INSERT INTO station (station_id, name, district, address, phone, jurisdiction_area, established_year)
 VALUES
-(1, 'Koramangala Police Station', 'Bangalore Urban', '80 Feet Road, 6th Block, Koramangala, Bengaluru, Karnataka 560095', '+918022942586', 'Koramangala 1st to 8th Blocks', 1985),
-(2, 'Shivaji Nagar Police Station', 'Pune', 'Shivajinagar, Pune, Maharashtra 411005', '+912025501122', 'Shivajinagar, FC Road, JM Road', 1972),
-(3, 'Bandra Police Station', 'Mumbai Suburban', 'Hill Road, Bandra West, Mumbai, Maharashtra 400050', '+912226421555', 'Bandra West, Khar, Pali Hill', 1960),
-(4, 'Indiranagar Police Station', 'Bangalore Urban', '100 Feet Road, Indiranagar, Bengaluru, Karnataka 560038', '+918022942589', 'Indiranagar, HAL 2nd Stage, Domlur', 1999),
-(5, 'Andheri Police Station', 'Mumbai Suburban', 'S.V. Road, Andheri West, Mumbai, Maharashtra 400058', '+912226282345', 'Andheri West, Versova, Lokhandwala', 1980),
-(6, 'Jayanagar Police Station', 'Bangalore Urban', '4th Block, Jayanagar, Bengaluru, Karnataka 560011', '+918022942582', 'Jayanagar 1st to 9th Blocks', 1990),
-(7, 'Sadashiv Peth Police Station', 'Pune', 'Sadashiv Peth, Pune, Maharashtra 411030', '+912024451133', 'Sadashiv Peth, Alka Talkies Chowk', 1995);
+(1, 'Cubbon Park PS', 'Bengaluru Urban', 'Kasturba Rd, Shantala Nagar, Ashok Nagar, Bengaluru, Karnataka 560001', '+918022942581', 'Cubbon Park and surrounding areas', 1982),
+(2, 'Yelahanka PS', 'Bengaluru Urban', 'BB Road, Yelahanka, Bengaluru, Karnataka 560064', '+918022942582', 'Yelahanka Old Town, Yelahanka New Town', 1995),
+(3, 'Jayanagar PS', 'Bengaluru Urban', '4th Block, Jayanagar, Bengaluru, Karnataka 560011', '+918022942583', 'Jayanagar 1st to 9th Blocks', 1990),
+(4, 'Koramangala PS', 'Bengaluru Urban', '80 Feet Road, 6th Block, Koramangala, Bengaluru, Karnataka 560095', '+918022942584', 'Koramangala 1st to 8th Blocks', 1985),
+(5, 'Whitefield PS', 'Bengaluru Urban', 'Whitefield Main Rd, Inner Circle, Whitefield, Bengaluru, Karnataka 560066', '+918022942585', 'Whitefield, ITPL, Kadugodi', 2002),
+(6, 'Belagavi Town PS', 'Belagavi', 'Khade Bazar, Belagavi, Karnataka 590001', '+918312405233', 'Belagavi market and city center', 1988),
+(7, 'Mysuru City PS', 'Mysuru', 'Devaraja Double Rd, Devaraja Mohalla, Mysuru, Karnataka 570001', '+918212418100', 'Mysuru Palace and surrounding business district', 2008);
 
--- 2. Populate 'officer' (7 rows)
+-- 2. Populate 'officer' (8 rows)
 INSERT INTO officer (officer_id, station_id, name, badge_number, `rank`, contact, email, join_date)
 VALUES
-(1, 1, 'Inspector Rajesh Kumar', 'KA-KA101', 'Inspector', '9845012345', 'rajesh.kumar@karnatakapolice.gov.in', '2010-06-15'),
-(2, 2, 'Sub-Inspector Amit Patil', 'MH-PN202', 'Sub-Inspector', '9822098765', 'amit.patil@mahapolice.gov.in', '2015-08-01'),
-(3, 3, 'Assistant Inspector Sachin Kadam', 'MH-MB303', 'Assistant Police Inspector', '9819076543', 'sachin.kadam@mahapolice.gov.in', '2012-04-10'),
-(4, 4, 'Inspector Sunita Deshmukh', 'KA-KA104', 'Inspector', '9900012345', 'sunita.d@karnatakapolice.gov.in', '2008-11-20'),
-(5, 5, 'Sub-Inspector Vijay Salaskar', 'MH-MB305', 'Sub-Inspector', '9867012345', 'vijay.salaskar@mahapolice.gov.in', '2018-02-14'),
-(6, 6, 'Inspector Anil Kumble', 'KA-KA106', 'Inspector', '9448098765', 'anil.kumble@karnatakapolice.gov.in', '2005-05-05'),
-(7, 7, 'Sub-Inspector Priya Sharma', 'MH-PN207', 'Sub-Inspector', '9503012345', 'priya.sharma@mahapolice.gov.in', '2020-01-10');
+(1, 1, 'Karthik Gowda', 'KA-001', 'Inspector', '9845012341', 'karthik.gowda@karnatakapolice.gov.in', '2008-04-12'),
+(2, 2, 'Manjunath Patil', 'KA-002', 'SI', '9845012342', 'manjunath.patil@karnatakapolice.gov.in', '2012-08-19'),
+(3, 3, 'Ravi Shankar', 'KA-003', 'ASI', '9845012343', 'ravi.shankar@karnatakapolice.gov.in', '2010-11-05'),
+(4, 4, 'Priya Shenoy', 'KA-004', 'DSP', '9845012344', 'priya.shadow@karnatakapolice.gov.in', '2005-02-14'),
+(5, 5, 'Srinivas Rao', 'KA-005', 'Head Constable', '9845012345', 'srinivas.rao@karnatakapolice.gov.in', '2015-05-20'),
+(6, 6, 'Basavaraj Bommai', 'KA-006', 'Constable', '9845012346', 'basavaraj.b@karnatakapolice.gov.in', '2020-09-01'),
+(7, 7, 'Vijay Raghavendra', 'KA-007', 'Inspector', '9845012347', 'vijay.r@karnatakapolice.gov.in', '2011-03-25'),
+(8, 1, 'Anusha Hegde', 'KA-008', 'SI', '9845012348', 'anusha.hegde@karnatakapolice.gov.in', '2018-07-30');
 
--- 3. Populate 'complainant' (7 rows)
+UPDATE officer SET password_hash = SHA2('password123', 256), role = 'admin'  WHERE badge_number = 'KA-001';
+UPDATE officer SET password_hash = SHA2('password123', 256), role = 'officer' WHERE badge_number != 'KA-001';
+
+-- 3. Populate 'complainant' (8 rows)
 INSERT INTO complainant (complainant_id, name, phone, address, dob, id_proof_type, id_proof_number)
 VALUES
-(1, 'Aarav Mehta', '9833012345', 'A-404, Sea Breeze Apartments, Bandra West, Mumbai', '1988-04-12', 'Aadhaar', '987654321012'),
-(2, 'Neha Kulkarni', '9823098765', 'Flat 12, Swapnali Residency, Sadashiv Peth, Pune', '1995-10-22', 'PAN', 'ABCDE1234F'),
-(3, 'Rohan Murthy', '9901054321', '102, Maple Woods, Koramangala 3rd Block, Bengaluru', '1991-07-05', 'Passport', 'Z1234567'),
-(4, 'Priya Nair', '9880012345', '45, 2nd Main, Indiranagar, Bengaluru', '1993-01-30', 'VoterID', 'XYZ9876543'),
-(5, 'Aditya Joshi', '9892012345', 'Flat 8B, Gokul Dham, Andheri West, Mumbai', '1985-09-18', 'Aadhaar', '112233445566'),
-(6, 'Sneha Gawde', '9702098765', 'House No. 89, Shivaji Nagar, Pune', '1990-12-05', 'PAN', 'EFGHI5678J'),
-(7, 'Vikram Shenoy', '9449012345', '304, 5th Cross, Jayanagar 4th Block, Bengaluru', '1980-03-25', 'Aadhaar', '778899001122');
+(1, 'Rahul Dravid', '9880011111', '12, 3rd Main, Indiranagar, Bengaluru', '1973-01-11', 'Passport', 'Z1122334'),
+(2, 'Sudha Murthy', '9880022222', 'Flat 101, Heritage Apts, Jayanagar, Bengaluru', '1950-08-19', 'Aadhaar', '123456789012'),
+(3, 'Anil Kumble', '9880033333', '234, 5th Cross, Sadashivashnagar, Bengaluru', '1970-10-17', 'PAN', 'ABCDE1234A'),
+(4, 'Ramesh Aravind', '9880044444', '45, Orchid Meadows, Whitefield, Bengaluru', '1964-09-10', 'VoterID', 'KA03123456'),
+(5, 'Puneeth Rajkumar', '9880055555', 'House 7, Sadashivanagar, Bengaluru', '1975-03-17', 'Aadhaar', '987654321098'),
+(6, 'Shreya Ghoshal', '9880066666', 'A-501, Prestige Lakeside, Mysuru', '1984-03-12', 'Passport', 'K5566778'),
+(7, 'Devi Prasad', '9880077777', '15, Palace Road, Mysuru', '1979-05-24', 'PAN', 'XYZP9876Q'),
+(8, 'Meera Jaswanth', '9880088888', '32, 2nd Cross, Malleshwaram, Bengaluru', '1992-11-08', 'VoterID', 'KA04765432');
 
--- 4. Populate 'fir' (7 rows)
+-- 4. Populate 'fir' (8 rows)
 INSERT INTO fir (fir_id, complainant_id, officer_id, station_id, crime_type, incident_date, incident_location, description, status, filing_date)
 VALUES
-(1, 1, 3, 3, 'IPC 379 - Theft', '2026-05-10 14:30:00', 'Bandra Carter Road Promenade', 'Complainants mobile phone and wallet snatched by two motorcycle-borne riders.', 'Open', '2026-05-10 16:00:00'),
-(2, 2, 7, 7, 'IPC 302 - Murder', '2026-05-12 23:15:00', 'Sadashiv Peth Lane 3 near temple', 'A shopkeeper was assaulted with a sharp weapon, resulting in his death.', 'Under Investigation', '2026-05-13 01:30:00'),
-(3, 3, 1, 1, 'IPC 420 - Cheating', '2026-05-01 10:00:00', 'Online Banking / Koramangala', 'Complainant was duped of INR 5 Lakhs via a phishing phone call impersonating bank officials.', 'Closed', '2026-05-05 11:15:00'),
-(4, 4, 4, 4, 'IPC 392 - Robbery', '2026-05-15 20:45:00', 'Indiranagar 12th Main Road', 'Two suspects intercepted complainant and robbed gold chain at knifepoint.', 'Chargesheeted', '2026-05-15 22:00:00'),
-(5, 5, 5, 5, 'IPC 354 - Assault on Woman', '2026-05-18 22:00:00', 'Andheri West Metro Station Exit', 'Verbal harassment and physical assault on complainant by a known suspect while returning home.', 'Under Investigation', '2026-05-19 09:30:00'),
-(6, 6, 2, 2, 'IPC 384 - Extortion', '2026-05-20 11:00:00', 'Shivaji Nagar Market Area', 'Local goons demanded haftah weekly payment from shop owners and threatened violence.', 'Open', '2026-05-20 14:00:00'),
-(7, 7, 6, 6, 'IPC 279 - Rash Driving', '2026-05-22 17:30:00', 'Jayanagar 4th Block Signal', 'An overspeeding SUV rammed into complainant\'s parked sedan, causing massive damage.', 'Closed', '2026-05-22 18:30:00');
+(1, 1, 1, 1, 'IPC 302 - Murder', '2023-08-15 22:30:00', 'Near Lalbagh Gate, Bengaluru', 'Victim assaulted with a blunt object behind Lalbagh Gate; declared dead upon arrival at hospital.', 'Under Investigation', '2023-08-15 23:45:00'),
+(2, 2, 2, 2, 'IPC 379 - Theft', '2023-10-05 14:15:00', 'Yelahanka New Town Bus Stand, Bengaluru', 'Gold chain snatched from complainant\'s neck by two unidentified riders on a motorcycle.', 'Open', '2023-10-05 15:30:00'),
+(3, 3, 3, 3, 'IPC 376 - Sexual Assault', '2023-12-01 23:00:00', 'Dark alley near Jayanagar 4th Block, Bengaluru', 'Assault and harassment of a working professional returning home; physical evidence collected.', 'Under Investigation', '2023-12-02 01:15:00'),
+(4, 4, 4, 4, 'IPC 420 - Fraud', '2024-01-20 11:00:00', 'Koramangala 3rd Block, Bengaluru', 'Online phishing scam where complainant was duped of INR 10 Lakhs using spoofed bank caller ID.', 'Closed', '2024-01-20 14:30:00'),
+(5, 5, 5, 5, 'IPC 498A - Domestic Violence', '2024-03-14 09:00:00', 'Whitefield Prestige Apartments, Bengaluru', 'Harassment and demand for dowry by husband and in-laws, leading to physical abuse.', 'Chargesheeted', '2024-03-14 11:00:00'),
+(6, 6, 6, 6, 'IPC 363 - Kidnapping', '2024-04-18 16:30:00', 'Outside Government School, Belagavi', 'A 10-year-old child reported missing; CCTV shows a red hatchback taking the child away.', 'Open', '2024-04-18 18:00:00'),
+(7, 7, 7, 7, 'IPC 307 - Attempt to Murder', '2024-05-02 21:45:00', 'Near Mysuru Palace North Gate, Mysuru', 'Street altercation escalated into stab wounds inflicted on the victim with a pocket knife.', 'Closed', '2024-05-02 23:00:00'),
+(8, 8, 8, 1, 'IPC 406 - Criminal Breach of Trust', '2024-02-28 15:00:00', 'Cubbon Park Road, Bengaluru', 'Business partner embezzled company funds amounting to INR 25 Lakhs through unauthorized self-transfers.', 'Chargesheeted', '2024-02-28 17:30:00');
 
--- 5. Populate 'accused' (7 rows)
+-- 5. Populate 'accused' (8 rows)
 INSERT INTO accused (accused_id, fir_id, name, dob, address, contact, prior_record, arrest_status)
 VALUES
-(1, 1, 'Ramesh Shinde', '1998-02-14', 'Slums near Bandra Reclamation, Mumbai', '9819998877', 'Yes', 'At Large'),
-(2, 2, 'Suresh Patil', '1990-08-20', 'Pune Cantonment Area, Pune', '9822334455', 'Yes', 'Arrested'),
-(3, 3, 'Vicky Malhotra', '1992-12-05', 'Unknown / Cyber Cell Tracing Required', NULL, 'Unknown', 'At Large'),
-(4, 4, 'Jagdish Tiwari', '1995-05-16', 'Koramangala Transit Camp, Bengaluru', '9900112233', 'No', 'Arrested'),
-(5, 5, 'Sameer Deshmukh', '1987-11-03', 'Andheri East, Mumbai', '9867112233', 'No', 'Released on Bail'),
-(6, 6, 'Kiran Balu Thorat', '1993-04-22', 'Shivaji Nagar, Pune', '9503445566', 'Yes', 'Arrested'),
-(7, 7, 'Rahul Gupte', '2001-09-09', 'JP Nagar 2nd Phase, Bengaluru', '9448332211', 'No', 'Released on Bail');
+(1, 1, 'Kiran Kumar alias Kulla', '1990-05-15', 'Slums near Kalasipalya, Bengaluru', '9844098761', 'Yes', 'Arrested'),
+(2, 2, 'Ramesh Babu', '1995-11-20', 'Neelasandra, Bengaluru', '9844098762', 'No', 'At Large'),
+(3, 3, 'Satish Reddy', '1988-03-10', 'HSR Layout, Bengaluru', '9844098763', 'Yes', 'Arrested'),
+(4, 4, 'Sanjay Dutt', '1982-08-14', 'Cyber Cell investigation ongoing', NULL, 'Unknown', 'At Large'),
+(5, 5, 'Dinesh Karthik', '1986-06-01', 'Prestige Apartments, Whitefield, Bengaluru', '9844098765', 'No', 'Released on Bail'),
+(6, 6, 'Guru Prasad', '1993-12-25', 'Khasbag, Belagavi', '9844098766', 'Yes', 'At Large'),
+(7, 7, 'Nikhil Gowda', '1997-04-18', 'Mysuru Outer Ring Road, Mysuru', '9844098767', 'No', 'Released on Bail'),
+(8, 8, 'Vikram Aditya', '1979-07-02', 'Jayanagar 9th Block, Bengaluru', '9844098768', 'Unknown', 'Arrested');
 
--- 6. Populate 'evidence' (7 rows)
+-- 6. Populate 'evidence' (8 rows)
 INSERT INTO evidence (evidence_id, fir_id, collected_by, type, description, collected_date, storage_location, status)
 VALUES
-(1, 1, 3, 'Digital', 'CCTV Footage from Carter Road coffee shop showing suspects vehicle plate.', '2026-05-11', 'Locker Room A, Bandra PS', 'Active'),
-(2, 2, 7, 'Forensic', 'Fingerprints and blood samples extracted from the crime scene weapon.', '2026-05-13', 'State Forensic Lab, Pune', 'Active'),
-(3, 3, 1, 'Document', 'Bank account statements and call records log of fraudulent transaction.', '2026-05-06', 'Cyber Cell File Cabinet B3', 'Submitted to Court'),
-(4, 4, 4, 'Physical', 'Serrated steel knife recovered from the arrest site of the suspect.', '2026-05-16', 'Evidence Vault, Indiranagar PS', 'Active'),
-(5, 5, 5, 'Witness Statement', 'Written and signed witness statement of the security guard present at metro exit.', '2026-05-19', 'Case File 354/2026', 'Active'),
-(6, 6, 2, 'Digital', 'Audio recording of the extortion threat received on the complainant\'s mobile.', '2026-05-21', 'Secured Server, Shivaji Nagar PS', 'Active'),
-(7, 7, 6, 'Physical', 'Paint scrapings and dashboard camera video showing SUV license plate.', '2026-05-22', 'Evidence Vault, Jayanagar PS', 'Disposed');
+(1, 1, 1, 'Physical', 'Blood-stained cricket bat recovered from the bushes near Lalbagh Gate.', '2023-08-16', 'Cubbon Park PS Locker Room A', 'Active'),
+(2, 2, 2, 'Digital', 'CCTV footage from Yelahanka main road traffic signal showing the suspect vehicle.', '2023-10-06', 'Secure Server Rack B', 'Active'),
+(3, 3, 3, 'Forensic', 'DNA swabs and fingernail scrapings of the suspect recovered from victim clothes.', '2023-12-02', 'State Forensic Laboratory, Bengaluru', 'Active'),
+(4, 4, 4, 'Document', 'Bank statements showing transfer of INR 10 Lakhs to the fraudulent shell account.', '2024-01-22', 'Cyber Crime Vault 1', 'Submitted to Court'),
+(5, 5, 5, 'Witness Statement', 'Signed witness statement of neighbor who heard altercation and shouting.', '2024-03-15', 'Whitefield PS Case File Box 2', 'Submitted to Court'),
+(6, 6, 6, 'Digital', 'Kidnapping ransom call recording obtained from complainant\'s phone tapping.', '2024-04-19', 'Digital Evidence Locker D', 'Active'),
+(7, 7, 7, 'Physical', 'Blood-stained pocket knife with 4-inch blade recovered from the spot.', '2024-05-03', 'Mysuru PS Safe Box 4', 'Disposed'),
+(8, 8, 8, 'Document', 'Audit ledger showing forged signatures on company checkbook registers.', '2024-03-01', 'Cubbon Park PS Filing Cabinet C1', 'Active');
 
--- 7. Populate 'investigation' (7 rows)
+-- 7. Populate 'investigation' (8 rows)
 INSERT INTO investigation (investigation_id, fir_id, officer_id, log_date, remarks, next_action, next_hearing_date, outcome)
 VALUES
-(1, 1, 3, '2026-05-11 10:00:00', 'Preliminary site inspection completed. Informants alerted in the area.', 'Analyze CCTV footage', '2026-06-05', 'Pending'),
-(2, 2, 7, '2026-05-13 14:00:00', 'Autopsy report received. Cause of death confirmed as sharp weapon injuries.', 'Interrogate suspect Suresh Patil', '2026-06-10', 'Pending'),
-(3, 3, 1, '2026-05-08 16:30:00', 'Funds trace led to dummy account in another state. Account frozen. Recovery process completed.', 'File closure report', '2026-05-15', 'Solved'),
-(4, 4, 4, '2026-05-17 11:00:00', 'Stolen gold chain recovered from local pawn broker who identified the suspect.', 'Prepare chargesheet for submission', '2026-06-20', 'Solved'),
-(5, 5, 5, '2026-05-20 12:00:00', 'Suspect surrendered and was released on bail by court order. Statement recorded.', 'File final chargesheet', '2026-07-01', 'Pending'),
-(6, 6, 2, '2026-05-22 09:30:00', 'Suspect Kiran Thorat arrested. Admitted to intimidation and named accomplice.', 'Apprehend the accomplice', '2026-06-12', 'Pending'),
-(7, 7, 6, '2026-05-23 15:00:00', 'Accused paid full compensation to complainant for damages. Matter settled out of court.', 'Case closed formally', '2026-05-24', 'Solved');
+(1, 1, 1, '2023-08-16 10:30:00', 'Primary suspect Kiran Kumar apprehended. Underwent interrogation.', 'Await forensic report on recovered bat', '2023-09-15', 'Pending'),
+(2, 2, 2, '2023-10-07 11:00:00', 'Informants deployed in local market area to identify the motorcycle license plate.', 'Conduct local area patrolling and surveillance', NULL, 'Pending'),
+(3, 3, 3, '2023-12-03 14:00:00', 'Forensic DNA matching completed successfully with the accused Satish Reddy.', 'File preliminary chargesheet in court', '2024-01-10', 'Pending'),
+(4, 4, 4, '2024-01-25 16:00:00', 'Scam funds traced to a mule account. Funds frozen and full amount recovered.', 'Case closed and final report submitted', NULL, 'Solved'),
+(5, 5, 5, '2024-03-20 12:30:00', 'Accused husband surrendered under court pressure. Released on bail.', 'Prepare final chargesheet under 498A', NULL, 'Solved'),
+(6, 6, 6, '2024-04-20 09:30:00', 'CCTV footage tracked red hatchback to Outer Ring Road toll plaza.', 'Dispatch recovery team to coordinated location', NULL, 'Pending'),
+(7, 7, 7, '2024-05-05 15:00:00', 'Altercation resolved outside court with written apology and medical expense compensation.', 'Submit case compromise petition to magistrate', NULL, 'Solved'),
+(8, 8, 8, '2024-03-05 10:00:00', 'Audit reports confirmed self-transfers by business partner. Fraud verified.', 'Submit formal chargesheet for IPC 406', '2024-04-20', 'Solved');

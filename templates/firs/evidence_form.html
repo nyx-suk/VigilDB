@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8 col-xl-7">
+        <!-- Back Button -->
+        <a href="/firs/{{ fir.fir_id }}" class="btn btn-link text-secondary text-decoration-none px-0 mb-4">
+            <i class="bi bi-arrow-left me-2"></i> Back to Case Folder
+        </a>
+
+        <!-- Form Card Container -->
+        <div class="card border border-secondary border-opacity-10 rounded-4 shadow" style="background-color: var(--card-bg);">
+            <div class="card-header border-bottom border-secondary border-opacity-10 p-4" style="background-color: rgba(255, 255, 255, 0.01);">
+                <h3 class="text-white fw-bold mb-0">
+                    <i class="bi bi-safe text-primary me-2" style="color: var(--primary-color) !important;"></i> Log Case Evidence
+                </h3>
+                <p class="text-secondary mb-0 mt-1">
+                    Secure an exhibit node in the digital evidence locker, linking it to Case Folder FIR #{{ fir.fir_id }} ({{ fir.crime_type }}).
+                </p>
+            </div>
+            
+            <div class="card-body p-4">
+                <form action="/firs/{{ fir.fir_id }}/evidence/new" method="POST">
+                    
+                    <div class="row g-3">
+                        <!-- Collected By Officer Select -->
+                        <div class="col-md-6">
+                            <label for="collected_by" class="form-label text-secondary fw-semibold">Collected By Officer <span class="text-danger">*</span></label>
+                            <select class="form-select bg-dark border-secondary border-opacity-25 text-white rounded-3 px-3 py-2" id="collected_by" name="collected_by" required>
+                                <option value="" disabled selected>Select Seizing Officer</option>
+                                {% for o in officers %}
+                                    <option value="{{ o.officer_id }}">{{ o.name }} ({{ o.badge_number }})</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <!-- Evidence Type Dropdown -->
+                        <div class="col-md-6">
+                            <label for="type" class="form-label text-secondary fw-semibold">Evidence Classification <span class="text-danger">*</span></label>
+                            <select class="form-select bg-dark border-secondary border-opacity-25 text-white rounded-3 px-3 py-2" id="type" name="type" required>
+                                <option value="" disabled selected>Select Evidence Type</option>
+                                {% for t in ['Physical', 'Digital', 'Witness Statement', 'Forensic', 'Document'] %}
+                                    <option value="{{ t }}">{{ t }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <!-- Collected Date -->
+                        <div class="col-md-6">
+                            <label for="collected_date" class="form-label text-secondary fw-semibold">Date of Seizure <span class="text-danger">*</span></label>
+                            <input type="date" class="form-control bg-dark border-secondary border-opacity-25 text-white rounded-3 px-3 py-2" id="collected_date" name="collected_date" required>
+                        </div>
+
+                        <!-- Storage Location -->
+                        <div class="col-md-6">
+                            <label for="storage_location" class="form-label text-secondary fw-semibold">Locker Storage Location</label>
+                            <input type="text" class="form-control bg-dark border-secondary border-opacity-25 text-white rounded-3 px-3 py-2" id="storage_location" name="storage_location" 
+                                   placeholder="e.g. Locker Room A, Bandra PS">
+                        </div>
+
+                        <!-- Evidence Status Dropdown -->
+                        <div class="col-md-12">
+                            <label for="status" class="form-label text-secondary fw-semibold">Locker Placement Status <span class="text-danger">*</span></label>
+                            <select class="form-select bg-dark border-secondary border-opacity-25 text-white rounded-3 px-3 py-2" id="status" name="status" required>
+                                {% for s in ['Active', 'Submitted to Court', 'Disposed'] %}
+                                    <option value="{{ s }}" {{ 'selected' if s == 'Active' else '' }}>{{ s }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <!-- Description -->
+                        <div class="col-md-12">
+                            <label for="description" class="form-label text-secondary fw-semibold">Detailed Description of Exhibit <span class="text-danger">*</span></label>
+                            <textarea class="form-control bg-dark border-secondary border-opacity-25 text-white rounded-3 px-3 py-2" id="description" name="description" 
+                                      rows="3" placeholder="Provide accurate dimensions, serials, or contents of statements seized..." required></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="mt-4 pt-3 border-top border-secondary border-opacity-10 d-flex justify-content-end gap-2">
+                        <a href="/firs/{{ fir.fir_id }}" class="btn btn-outline-secondary px-4 py-2 rounded-3">Cancel</a>
+                        <button type="submit" class="btn btn-primary px-4 py-2 rounded-3" style="background-color: var(--primary-color); border: none;">
+                            <i class="bi bi-box-seam me-2"></i> Register Evidence
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -77,7 +77,10 @@
                 <i class="bi bi-file-earmark-ruled"></i>
             </div>
             <div class="card-title">Total FIRs</div>
-            <div class="card-value text-white">{{ counts.firs }}</div>
+            <div class="card-value text-white d-flex align-items-baseline justify-content-between">
+                <span>{{ counts.firs }}</span>
+                <span class="fs-6 text-danger fw-bold" style="font-size: 0.9rem !important;"><i class="bi bi-exclamation-circle-fill me-1"></i>{{ counts.open_firs }} open</span>
+            </div>
             <a href="/firs" class="card-link" style="color: #dc3545;">
                 View All <i class="bi bi-arrow-right"></i>
             </a>

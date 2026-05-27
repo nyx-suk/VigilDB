@@ -28,35 +28,51 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto align-items-center">
                     <li class="nav-item">
-                        <a class="nav-link {{ 'active' if request.path == '/' else '' }}" href="/">
+                        <a class="nav-link {{ 'active' if request.path == '/' or request.path == '/dashboard' else '' }}" href="/">
                             <i class="bi bi-speedometer2 me-1"></i> Home
                         </a>
                     </li>
+                    {% if session.get('role') == 'admin' %}
                     <li class="nav-item">
-                        <a class="nav-link {{ 'active' if request.path == '/stations' else '' }}" href="/stations">
+                        <a class="nav-link {{ 'active' if request.path.startswith('/stations') else '' }}" href="/stations">
                             <i class="bi bi-building me-1"></i> Stations
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {{ 'active' if request.path == '/officers' else '' }}" href="/officers">
+                        <a class="nav-link {{ 'active' if request.path.startswith('/officers') else '' }}" href="/officers">
                             <i class="bi bi-person-badge me-1"></i> Officers
                         </a>
                     </li>
+                    {% endif %}
                     <li class="nav-item">
-                        <a class="nav-link {{ 'active' if request.path == '/complainants' else '' }}" href="/complainants">
+                        <a class="nav-link {{ 'active' if request.path.startswith('/complainants') else '' }}" href="/complainants">
                             <i class="bi bi-people me-1"></i> Complainants
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {{ 'active' if request.path == '/firs' else '' }}" href="/firs">
+                        <a class="nav-link {{ 'active' if request.path.startswith('/firs') else '' }}" href="/firs">
                             <i class="bi bi-file-earmark-ruled me-1"></i> FIRs
                         </a>
                     </li>
+                    {% if session.get('role') == 'admin' %}
                     <li class="nav-item">
-                        <a class="nav-link {{ 'active' if request.path == '/reports' else '' }}" href="/reports">
+                        <a class="nav-link {{ 'active' if request.path.startswith('/reports') else '' }}" href="/reports">
                             <i class="bi bi-graph-up-arrow me-1"></i> Reports
                         </a>
                     </li>
+                    {% endif %}
+                    {% if session.get('officer_id') %}
+                        <li class="nav-item ms-lg-3 mt-2 mt-lg-0">
+                            <span class="nav-link text-white fw-semibold mb-0" style="cursor: default;">
+                                <i class="bi bi-person-circle text-primary me-1"></i> Welcome, {{ session['officer_name'] }}
+                            </span>
+                        </li>
+                        <li class="nav-item ms-lg-2">
+                            <a class="nav-link btn btn-outline-danger btn-sm px-3 text-danger" href="/logout" style="border: 1px solid rgba(220, 53, 69, 0.3) !important;">
+                                <i class="bi bi-box-arrow-right me-1"></i> Logout
+                            </a>
+                        </li>
+                    {% endif %}
                 </ul>
             </div>
         </div>

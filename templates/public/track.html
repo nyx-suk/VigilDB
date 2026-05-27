@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Track case - Crime Record & FIR Management System</title>
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Bootstrap 5 CSS CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <!-- Bootstrap Icons CDN -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.min.css">
+    <!-- Custom Stylesheet -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        body {
+            background-color: var(--dark-bg);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 3rem 0;
+        }
+        .form-card {
+            background: linear-gradient(145deg, #1e293b 0%, #0f172a 100%);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 2.5rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+        .details-card {
+            background: linear-gradient(145deg, #1e293b 0%, #0f172a 100%);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 3rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            margin-top: 2rem;
+        }
+        .app-title {
+            background: linear-gradient(135deg, #a5b4fc 0%, #6366f1 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 800;
+        }
+        /* Vertical Stepper CSS */
+        .stepper-vertical {
+            position: relative;
+            padding-left: 3rem;
+            margin-top: 2rem;
+            list-style: none;
+        }
+        .stepper-vertical::before {
+            content: '';
+            position: absolute;
+            left: 14px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        .stepper-item {
+            position: relative;
+            margin-bottom: 2rem;
+        }
+        .stepper-item:last-child {
+            margin-bottom: 0;
+        }
+        .stepper-circle {
+            position: absolute;
+            left: -3rem;
+            top: 0;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background-color: #1e293b;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            z-index: 1;
+        }
+        .stepper-item.active .stepper-circle {
+            border-color: var(--primary-color);
+            background-color: var(--primary-color);
+            color: #fff;
+            box-shadow: 0 0 15px rgba(99, 102, 241, 0.5);
+        }
+        .stepper-item.completed .stepper-circle {
+            border-color: var(--secondary-color);
+            background-color: var(--secondary-color);
+            color: #fff;
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.5);
+        }
+        .stepper-content {
+            padding-top: 2px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container" style="max-width: 800px;">
+        <div class="text-center mb-4">
+            <h2 class="app-title fw-bold text-uppercase tracking-wider">Track case Status</h2>
+            <p class="text-secondary mb-0">Follow the investigation timeline of your filed First Information Report (FIR)</p>
+        </div>
+
+        <!-- Search Form Card -->
+        <div class="form-card">
+            <form action="/public/track" method="GET">
+                <div class="row g-3 align-items-end">
+                    <!-- FIR ID -->
+                    <div class="col-md-5">
+                        <label for="fir_id" class="form-label text-secondary fw-semibold">FIR File Reference ID <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-dark border-secondary border-opacity-25 text-secondary"><i class="bi bi-file-earmark-ruled"></i></span>
+                            <input type="number" class="form-control bg-dark border-secondary border-opacity-25 text-white" id="fir_id" name="fir_id" placeholder="e.g. 1" value="{{ request.args.get('fir_id', '') }}" required>
+                        </div>
+                    </div>
+
+                    <!-- Phone Number -->
+                    <div class="col-md-5">
+                        <label for="phone" class="form-label text-secondary fw-semibold">Registered Complainant Contact <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-dark border-secondary border-opacity-25 text-secondary"><i class="bi bi-telephone"></i></span>
+                            <input type="tel" class="form-control bg-dark border-secondary border-opacity-25 text-white" id="phone" name="phone" placeholder="e.g. 9880011111" value="{{ request.args.get('phone', '') }}" required>
+                        </div>
+                    </div>
+
+                    <!-- Track Action -->
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-primary w-100 py-2 rounded-3 fw-semibold shadow" style="background-color: var(--primary-color); border: none; height: 38px;">
+                            <i class="bi bi-search"></i> Track
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Search Result Details -->
+        {% if searched %}
+            {% if fir %}
+                <div class="details-card">
+                    <div class="d-flex justify-content-between align-items-center mb-4 border-bottom border-secondary border-opacity-10 pb-3">
+                        <h4 class="text-white fw-bold mb-0">
+                            <i class="bi bi-folder2-open text-indigo-300 me-2"></i> Case Dossier: FIR #{{ fir.fir_id }}
+                        </h4>
+                        
+                        <!-- Status Badges -->
+                        {% if fir.status == 'Open' %}
+                            <span class="badge bg-primary bg-opacity-15 text-primary border border-primary border-opacity-25 px-3 py-2 rounded-pill fs-8">
+                                <i class="bi bi-folder2-open me-1"></i> Open
+                            </span>
+                        {% elif fir.status == 'Under Investigation' %}
+                            <span class="badge bg-warning bg-opacity-15 text-warning border border-warning border-opacity-25 px-3 py-2 rounded-pill fs-8">
+                                <i class="bi bi-activity me-1"></i> Under Investigation
+                            </span>
+                        {% elif fir.status == 'Closed' %}
+                            <span class="badge bg-success bg-opacity-15 text-success border border-success border-opacity-25 px-3 py-2 rounded-pill fs-8">
+                                <i class="bi bi-check-circle me-1"></i> Closed
+                            </span>
+                        {% elif fir.status == 'Chargesheeted' %}
+                            <span class="badge bg-info bg-opacity-15 text-info border border-info border-opacity-25 px-3 py-2 rounded-pill fs-8">
+                                <i class="bi bi-file-text me-1"></i> Chargesheeted
+                            </span>
+                        {% endif %}
+                    </div>
+
+                    <div class="row g-3 mb-4 text-start">
+                        <div class="col-md-6">
+                            <span class="text-secondary fs-8 text-uppercase d-block fw-semibold">Complainant Name</span>
+                            <span class="text-white fw-bold"><i class="bi bi-person me-1"></i>{{ fir.complainant_name }}</span>
+                        </div>
+                        <div class="col-md-6">
+                            <span class="text-secondary fs-8 text-uppercase d-block fw-semibold">Incident Category</span>
+                            <span class="text-white fw-bold">{{ fir.crime_type }}</span>
+                        </div>
+                        <div class="col-md-6">
+                            <span class="text-secondary fs-8 text-uppercase d-block fw-semibold">Filing Precinct Station</span>
+                            <span class="text-secondary"><i class="bi bi-building me-1"></i>{{ fir.station_name }}</span>
+                        </div>
+                        <div class="col-md-6">
+                            <span class="text-secondary fs-8 text-uppercase d-block fw-semibold">Assigned Case Officer</span>
+                            <span class="text-white"><i class="bi bi-person-badge me-1"></i>{{ fir.officer_name }}</span>
+                        </div>
+                        <div class="col-md-12">
+                            <span class="text-secondary fs-8 text-uppercase d-block fw-semibold">Filing Registration Timestamp</span>
+                            <span class="text-secondary font-monospace">{{ fir.filing_date }}</span>
+                        </div>
+                    </div>
+
+                    <h5 class="text-white fw-bold mt-4 mb-2">Investigation Milestone Status</h5>
+                    
+                    {% set steps = ['Open', 'Under Investigation', 'Closed', 'Chargesheeted'] %}
+                    {% set active_idx = 0 %}
+                    {% if fir.status == 'Under Investigation' %}
+                        {% set active_idx = 1 %}
+                    {% elif fir.status == 'Closed' %}
+                        {% set active_idx = 2 %}
+                    {% elif fir.status == 'Chargesheeted' %}
+                        {% set active_idx = 3 %}
+                    {% endif %}
+
+                    <ul class="stepper-vertical text-start">
+                        <!-- Step 1: Open -->
+                        <li class="stepper-item {% if active_idx == 0 %}active{% elif active_idx > 0 %}completed{% endif %}">
+                            <div class="stepper-circle">
+                                {% if active_idx > 0 %}<i class="bi bi-check-lg"></i>{% else %}1{% endif %}
+                            </div>
+                            <div class="stepper-content">
+                                <h6 class="fw-bold mb-1 {% if active_idx >= 0 %}text-white{% else %}text-secondary{% endif %}">Complaint Filed (Open)</h6>
+                                <p class="text-secondary fs-8 mb-0">First Information Report logged successfully. Intake processing finalized.</p>
+                            </div>
+                        </li>
+
+                        <!-- Step 2: Under Investigation -->
+                        <li class="stepper-item {% if active_idx == 1 %}active{% elif active_idx > 1 %}completed{% endif %}">
+                            <div class="stepper-circle">
+                                {% if active_idx > 1 %}<i class="bi bi-check-lg"></i>{% else %}2{% endif %}
+                            </div>
+                            <div class="stepper-content">
+                                <h6 class="fw-bold mb-1 {% if active_idx >= 1 %}text-white{% else %}text-secondary{% endif %}">Active Case Investigation</h6>
+                                <p class="text-secondary fs-8 mb-0">Assigned officer actively deploying forensic reviews, logging evidence files, and compiling timeline logs.</p>
+                            </div>
+                        </li>
+
+                        <!-- Step 3: Resolved/Chargesheeted -->
+                        <li class="stepper-item {% if active_idx >= 2 %}active{% endif %}">
+                            <div class="stepper-circle">3</div>
+                            <div class="stepper-content">
+                                <h6 class="fw-bold mb-1 {% if active_idx >= 2 %}text-white{% else %}text-secondary{% endif %}">Case Resolved / Chargesheeted</h6>
+                                <p class="text-secondary fs-8 mb-0">Intake process fully compiled and closed out or formally filed as a chargesheet docket in magistrate court.</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            {% else %}
+                <div class="alert alert-danger border border-danger border-opacity-25 bg-danger bg-opacity-10 text-danger text-center mt-4 p-4 rounded-3" role="alert">
+                    <i class="bi bi-exclamation-triangle-fill d-block fs-3 mb-2"></i>
+                    <h5 class="fw-bold mb-1">No FIR Found</h5>
+                    <div class="fs-8">We could not locate any registered First Information Report matching that ID and phone number combination.</div>
+                </div>
+            {% endif %}
+        {% endif %}
+
+        <div class="d-flex justify-content-between mt-4">
+            <a href="/public" class="btn btn-outline-secondary px-4 py-2.5 rounded-3 fw-semibold">
+                <i class="bi bi-arrow-left me-2"></i> Portal Home
+            </a>
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 JS Bundle CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+</body>
+</html>

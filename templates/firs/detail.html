@@ -1,0 +1,420 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- Back link and Title Header -->
+<div class="row mb-4 align-items-center">
+    <div class="col-md-7">
+        <a href="/firs" class="btn btn-link text-secondary text-decoration-none px-0 mb-2 d-inline-block">
+            <i class="bi bi-arrow-left me-2"></i> Back to FIR Registry
+        </a>
+        <h2 class="text-white fw-bold mb-0">
+            <i class="bi bi-shield-shaded text-indigo-400 me-2"></i> Case File: FIR #{{ fir.fir_id }}
+        </h2>
+        <span class="text-secondary fs-7">Filed on: <span class="text-white font-monospace">{{ fir.filing_date }}</span></span>
+    </div>
+    
+    <!-- Status Changer & Trigger Demo Widget & Delete Button -->
+    <div class="col-md-5 text-md-end mt-3 mt-md-0 d-flex justify-content-md-end gap-2">
+        {% if fir.status == 'Open' and session.get('role') == 'admin' %}
+            <button type="button" class="btn btn-danger px-4 py-2 rounded-3 fw-semibold shadow" data-bs-toggle="modal" data-bs-target="#deleteFirModal">
+                <i class="bi bi-trash-fill me-1"></i> Delete FIR
+            </button>
+        {% endif %}
+        <button type="button" class="btn btn-warning px-4 py-2 rounded-3 fw-semibold shadow" data-bs-toggle="modal" data-bs-target="#updateStatusModal">
+            <i class="bi bi-arrow-repeat me-1"></i> Update Status
+        </button>
+    </div>
+</div>
+
+<!-- Delete FIR Confirmation Modal -->
+{% if fir.status == 'Open' %}
+<div class="modal fade" id="deleteFirModal" tabindex="-1" aria-labelledby="deleteFirModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border border-secondary border-opacity-15 rounded-4 shadow" style="background-color: var(--card-bg); color: var(--text-primary); text-align: left;">
+            <div class="modal-header border-bottom border-secondary border-opacity-10 p-4">
+                <h5 class="modal-title fw-bold text-white" id="deleteFirModalLabel">
+                    <i class="bi bi-exclamation-triangle-fill text-danger me-2"></i> Delete Case File FIR #{{ fir.fir_id }}
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="/firs/{{ fir.fir_id }}/delete" method="POST">
+                <div class="modal-body p-4">
+                    <p class="text-secondary mb-0">
+                        Are you sure you want to permanently delete this FIR? This action cannot be undone and will delete all associated accused records, evidence logs, and investigation timeline audits.
+                    </p>
+                </div>
+                <div class="modal-footer border-top border-secondary border-opacity-10 p-3 d-flex justify-content-end gap-2" style="background-color: rgba(255,255,255,0.01);">
+                    <button type="button" class="btn btn-outline-secondary px-3 py-2 rounded-3" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger px-4 py-2 rounded-3 fw-semibold">
+                        <i class="bi bi-trash-fill me-1"></i> Delete Permanently
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Update Status Modal -->
+<div class="modal fade" id="updateStatusModal" tabindex="-1" aria-labelledby="updateStatusModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border border-secondary border-opacity-15 rounded-4 shadow" style="background-color: var(--card-bg); color: var(--text-primary); text-align: left;">
+            <div class="modal-header border-bottom border-secondary border-opacity-10 p-4">
+                <h5 class="modal-title fw-bold text-white" id="updateStatusModalLabel">
+                    <i class="bi bi-arrow-repeat text-warning me-2"></i> Update FIR Case Status
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="/firs/{{ fir.fir_id }}/status" method="POST">
+                <div class="modal-body p-4">
+                    <p class="text-secondary fs-7 mb-4">
+                        Modifying the case status will automatically fire the database's <code>fir_status_log</code> trigger to insert an automated investigation timeline audit.
+                    </p>
+                    <label for="status" class="form-label text-secondary fw-semibold">New Case Status <span class="text-danger">*</span></label>
+                    <select class="form-select bg-dark border-secondary border-opacity-25 text-white rounded-3 px-3 py-2" id="status" name="status" required>
+                        {% for s in ['Open', 'Under Investigation', 'Closed', 'Chargesheeted'] %}
+                            <option value="{{ s }}" {{ 'selected' if fir.status == s else '' }}>{{ s }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="modal-footer border-top border-secondary border-opacity-10 p-3 d-flex justify-content-end gap-2" style="background-color: rgba(255,255,255,0.01);">
+                    <button type="button" class="btn btn-outline-secondary px-3 py-2 rounded-3" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-warning px-4 py-2 rounded-3 fw-semibold">
+                        <i class="bi bi-check-lg me-1"></i> Confirm Status Update
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- LEFT SIDE: FIR Description, Accused list, Evidence locker -->
+    <div class="col-lg-8">
+        
+        <!-- Case Details Narrative Card -->
+        <div class="card border border-secondary border-opacity-10 rounded-4 mb-4 p-4 shadow" style="background-color: var(--card-bg);">
+            <h4 class="text-white fw-bold mb-3 border-bottom border-secondary border-opacity-10 pb-2">
+                <i class="bi bi-info-circle text-indigo-300 me-2"></i> Incident Particulars
+            </h4>
+            <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                    <span class="text-secondary fs-7 text-uppercase d-block fw-semibold">Crime Classification</span>
+                    <span class="text-white fw-bold">{{ fir.crime_type }}</span>
+                </div>
+                <div class="col-md-6">
+                    <span class="text-secondary fs-7 text-uppercase d-block fw-semibold">Date & Time of Occurrence</span>
+                    <span class="text-secondary font-monospace">{{ fir.incident_date }}</span>
+                </div>
+                <div class="col-md-12">
+                    <span class="text-secondary fs-7 text-uppercase d-block fw-semibold">Incident Spot Location</span>
+                    <span class="text-white"><i class="bi bi-geo-alt-fill text-danger me-1"></i>{{ fir.incident_location }}</span>
+                </div>
+            </div>
+            <div>
+                <span class="text-secondary fs-7 text-uppercase d-block fw-semibold mb-2">Narrative / Description</span>
+                <p class="text-secondary p-3 rounded-3 bg-dark border border-secondary border-opacity-10" style="white-space: pre-line; line-height: 1.6;">{{ fir.description }}</p>
+            </div>
+        </div>
+
+        <!-- Accused Registry Card -->
+        <div class="card border border-secondary border-opacity-10 rounded-4 mb-4 shadow overflow-hidden" style="background-color: var(--card-bg);">
+            <div class="card-header border-bottom border-secondary border-opacity-10 p-4 d-flex align-items-center justify-content-between" style="background-color: rgba(255,255,255,0.01);">
+                <h4 class="text-white fw-bold mb-0">
+                    <i class="bi bi-person-x text-indigo-300 me-2"></i> Accused List Registry
+                </h4>
+                <a href="/firs/{{ fir.fir_id }}/accused/new" class="btn btn-outline-primary btn-sm px-3 rounded-3" style="border-color: var(--primary-color); color: var(--primary-color);">
+                    <i class="bi bi-plus-lg me-1"></i> Add Accused
+                </a>
+            </div>
+            
+            <div class="card-body p-0">
+                {% if accused_list %}
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0" style="color: var(--text-primary);">
+                            <thead style="background-color: rgba(255,255,255,0.01); border-bottom: 1px solid rgba(255,255,255,0.05);">
+                                <tr>
+                                    <th class="px-4 py-3 text-secondary text-uppercase fs-8">Name</th>
+                                    <th class="py-3 text-secondary text-uppercase fs-8">DOB</th>
+                                    <th class="py-3 text-secondary text-uppercase fs-8">Prior Record</th>
+                                    <th class="py-3 text-secondary text-uppercase fs-8">Arrest Status</th>
+                                    {% if has_nationality %}
+                                        <th class="py-3 text-secondary text-uppercase fs-8 bg-success bg-opacity-5"><i class="bi bi-globe-americas text-success me-1"></i>Nationality</th>
+                                    {% endif %}
+                                    <th class="px-4 py-3 text-secondary text-uppercase fs-8 text-center" style="width: 220px;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for acc in accused_list %}
+                                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.03);">
+                                        <td class="px-4 fw-semibold text-white">
+                                            <i class="bi bi-person-fill text-danger me-1"></i>{{ acc.name }}
+                                        </td>
+                                        <td class="text-secondary font-monospace fs-8">
+                                            {{ acc.dob or 'N/A' }}
+                                        </td>
+                                        <td>
+                                            {% if acc.prior_record == 'Yes' %}
+                                                <span class="badge bg-danger bg-opacity-10 text-danger px-2 py-1 fs-8">Yes</span>
+                                            {% elif acc.prior_record == 'No' %}
+                                                <span class="badge bg-secondary bg-opacity-20 text-secondary px-2 py-1 fs-8">No</span>
+                                            {% else %}
+                                                <span class="badge bg-dark border border-secondary border-opacity-50 text-secondary px-2 py-1 fs-8">Unknown</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if acc.arrest_status == 'Arrested' %}
+                                                <span class="badge bg-success bg-opacity-15 text-success border border-success border-opacity-20 px-2 py-1 fs-8">Arrested</span>
+                                            {% elif acc.arrest_status == 'Released on Bail' %}
+                                                <span class="badge bg-warning bg-opacity-15 text-warning border border-warning border-opacity-20 px-2 py-1 fs-8">On Bail</span>
+                                            {% else %}
+                                                <span class="badge bg-danger bg-opacity-15 text-danger border border-danger border-opacity-20 px-2 py-1 fs-8">At Large</span>
+                                            {% endif %}
+                                        </td>
+                                        {% if has_nationality %}
+                                            <td class="fw-bold text-success bg-success bg-opacity-5">
+                                                {{ acc.nationality or 'Not Specified' }}
+                                            </td>
+                                        {% endif %}
+                                        <td class="px-4 text-center">
+                                            <div class="d-flex justify-content-center gap-2">
+                                                <a href="/accused/{{ acc.accused_id }}/edit" class="btn btn-outline-info btn-sm px-3 py-1 rounded-2" title="Edit Accused Profile">
+                                                    <i class="bi bi-pencil-square"></i> Edit
+                                                </a>
+                                                <form action="/accused/{{ acc.accused_id }}/delete" method="POST" onsubmit="return confirm('Are you sure you want to permanently delete this accused record?');" class="mb-0">
+                                                    <button type="submit" class="btn btn-outline-danger btn-sm px-3 py-1 rounded-2" title="Remove Accused">
+                                                        <i class="bi bi-trash-fill"></i> Delete
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="p-4 text-center">
+                        <p class="text-secondary mb-0">No accused suspects linked to this report yet.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Evidence Locker Card -->
+        <div class="card border border-secondary border-opacity-10 rounded-4 shadow overflow-hidden" style="background-color: var(--card-bg);">
+            <div class="card-header border-bottom border-secondary border-opacity-10 p-4 d-flex align-items-center justify-content-between" style="background-color: rgba(255,255,255,0.01);">
+                <h4 class="text-white fw-bold mb-0">
+                    <i class="bi bi-safe2 text-indigo-300 me-2"></i> Evidence Vault
+                </h4>
+                <a href="/firs/{{ fir.fir_id }}/evidence/new" class="btn btn-outline-primary btn-sm px-3 rounded-3" style="border-color: var(--primary-color); color: var(--primary-color);">
+                    <i class="bi bi-plus-lg me-1"></i> Add Evidence
+                </a>
+            </div>
+            
+            <div class="card-body p-0">
+                {% if evidence_list %}
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0" style="color: var(--text-primary);">
+                            <thead style="background-color: rgba(255,255,255,0.01); border-bottom: 1px solid rgba(255,255,255,0.05);">
+                                <tr>
+                                    <th class="px-4 py-3 text-secondary text-uppercase fs-8">Type</th>
+                                    <th class="py-3 text-secondary text-uppercase fs-8">Description</th>
+                                    <th class="py-3 text-secondary text-uppercase fs-8">Collected By</th>
+                                    <th class="py-3 text-secondary text-uppercase fs-8">Date</th>
+                                    <th class="py-3 text-secondary text-uppercase fs-8">Storage Location</th>
+                                    <th class="py-3 text-secondary text-uppercase fs-8">Status</th>
+                                    <th class="px-4 py-3 text-secondary text-uppercase fs-8 text-center" style="width: 220px;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for ev in evidence_list %}
+                                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.03);">
+                                        <td class="px-4">
+                                            <span class="fw-semibold text-white">
+                                                {% if ev.type == 'Physical' %}
+                                                    <i class="bi bi-box-seam-fill text-warning me-1"></i> Physical
+                                                {% elif ev.type == 'Digital' %}
+                                                    <i class="bi bi-hdd-fill text-info me-1"></i> Digital
+                                                {% elif ev.type == 'Witness Statement' %}
+                                                    <i class="bi bi-chat-left-quote-fill text-primary me-1"></i> Witness Statement
+                                                {% elif ev.type == 'Forensic' %}
+                                                    <i class="bi bi-droplet-fill text-danger me-1"></i> Forensic
+                                                {% else %}
+                                                    <i class="bi bi-file-earmark-text-fill text-secondary me-1"></i> Document
+                                                {% endif %}
+                                            </span>
+                                        </td>
+                                        <td class="text-secondary fs-8" style="max-width: 180px; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">
+                                            {{ ev.description }}
+                                        </td>
+                                        <td class="text-secondary fw-semibold">
+                                            {{ ev.officer_name }}
+                                        </td>
+                                        <td class="text-secondary font-monospace fs-8">{{ ev.collected_date }}</td>
+                                        <td>
+                                            <span class="badge bg-dark border border-secondary border-opacity-50 text-white font-monospace px-2 py-1 fs-8">
+                                                {{ ev.storage_location or 'N/A' }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            {% if ev.status == 'Active' %}
+                                                <span class="badge bg-success bg-opacity-15 text-success border border-success border-opacity-25 px-2 py-1 fs-8">Active</span>
+                                            {% elif ev.status == 'Submitted to Court' %}
+                                                <span class="badge bg-primary bg-opacity-15 text-primary border border-primary border-opacity-25 px-2 py-1 fs-8">In Court</span>
+                                            {% else %}
+                                                <span class="badge bg-secondary bg-opacity-15 text-secondary border border-secondary border-opacity-25 px-2 py-1 fs-8">Disposed</span>
+                                            {% endif %}
+                                        </td>
+                                        <td class="px-4 text-center">
+                                            <div class="d-flex justify-content-center gap-2">
+                                                <a href="/evidence/{{ ev.evidence_id }}/edit" class="btn btn-outline-info btn-sm px-3 py-1 rounded-2" title="Edit Evidence">
+                                                    <i class="bi bi-pencil-square"></i> Edit
+                                                </a>
+                                                <form action="/evidence/{{ ev.evidence_id }}/delete" method="POST" onsubmit="return confirm('Are you sure you want to permanently delete this evidence record?');" class="mb-0">
+                                                    <button type="submit" class="btn btn-outline-danger btn-sm px-3 py-1 rounded-2" title="Delete Evidence entry">
+                                                        <i class="bi bi-trash-fill"></i> Delete
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="p-4 text-center">
+                        <p class="text-secondary mb-0">No evidence recorded for this case folder yet.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Investigation Audit Logs Table Card -->
+        <div class="card border border-secondary border-opacity-10 rounded-4 shadow overflow-hidden" style="background-color: var(--card-bg);">
+            <div class="card-header border-bottom border-secondary border-opacity-10 p-4 d-flex align-items-center justify-content-between" style="background-color: rgba(255,255,255,0.01);">
+                <h4 class="text-white fw-bold mb-0">
+                    <i class="bi bi-clock-history text-indigo-300 me-2"></i> Investigation Audit Logs
+                </h4>
+                <a href="/firs/{{ fir.fir_id }}/investigation/new" class="btn btn-outline-warning btn-sm px-2 py-1 rounded-3">
+                    <i class="bi bi-plus-lg me-1"></i> Add Investigation Entry
+                </a>
+            </div>
+            
+            <div class="card-body p-0">
+                {% if investigation_logs %}
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0" style="color: var(--text-primary);">
+                            <thead style="background-color: rgba(255,255,255,0.01); border-bottom: 1px solid rgba(255,255,255,0.05);">
+                                <tr>
+                                    <th class="px-4 py-3 text-secondary text-uppercase fs-8" style="width: 120px;">Date</th>
+                                    <th class="py-3 text-secondary text-uppercase fs-8">Officer</th>
+                                    <th class="py-3 text-secondary text-uppercase fs-8">Remarks</th>
+                                    <th class="py-3 text-secondary text-uppercase fs-8">Next Action</th>
+                                    <th class="py-3 text-secondary text-uppercase fs-8">Next Hearing</th>
+                                    <th class="py-3 text-secondary text-uppercase fs-8">Outcome</th>
+                                    <th class="px-4 py-3 text-secondary text-uppercase fs-8 text-center" style="width: 100px;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for log in investigation_logs %}
+                                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.03);">
+                                        <td class="px-4 text-secondary font-monospace fs-8">
+                                            {{ log.log_date }}
+                                        </td>
+                                        <td class="text-white fw-semibold fs-8">
+                                            {{ log.officer_name }}
+                                        </td>
+                                        <td class="fs-8" style="max-width: 200px; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">
+                                            {% if 'Status changed from' in log.remarks %}
+                                                <span class="badge bg-success me-1">[TRIGGER]</span>
+                                            {% endif %}
+                                            {{ log.remarks }}
+                                        </td>
+                                        <td class="text-secondary fs-8">
+                                            {{ log.next_action or 'N/A' }}
+                                        </td>
+                                        <td class="text-secondary font-monospace fs-8">
+                                            {{ log.next_hearing_date or 'N/A' }}
+                                        </td>
+                                        <td>
+                                            {% if log.outcome == 'Solved' %}
+                                                <span class="badge bg-success bg-opacity-15 text-success border border-success border-opacity-25 px-2 py-1 fs-8">Solved</span>
+                                            {% elif log.outcome == 'Unsolved' %}
+                                                <span class="badge bg-danger bg-opacity-15 text-danger border border-danger border-opacity-25 px-2 py-1 fs-8">Unsolved</span>
+                                            {% elif log.outcome == 'Referred' %}
+                                                <span class="badge bg-info bg-opacity-15 text-info border border-info border-opacity-25 px-2 py-1 fs-8">Referred</span>
+                                            {% else %}
+                                                <span class="badge bg-warning bg-opacity-15 text-warning border border-warning border-opacity-25 px-2 py-1 fs-8">Pending</span>
+                                            {% endif %}
+                                        </td>
+                                        <td class="px-4 text-center">
+                                            <a href="/investigation/{{ log.investigation_id }}/edit" class="btn btn-outline-info btn-sm px-3 py-1 rounded-2" title="Edit Log Entry">
+                                                <i class="bi bi-pencil-square"></i> Edit
+                                            </a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="p-4 text-center">
+                        <p class="text-secondary mb-0">No investigation logs recorded yet.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+    </div>
+
+    <!-- RIGHT SIDE: Complainant dossier, Station details -->
+    <div class="col-lg-4">
+        
+        <!-- Complainant details dossier card -->
+        <div class="card border border-secondary border-opacity-10 rounded-4 mb-4 p-4 shadow" style="background-color: var(--card-bg);">
+            <h4 class="text-white fw-bold mb-3 border-bottom border-secondary border-opacity-10 pb-2">
+                <i class="bi bi-person-circle text-indigo-300 me-2"></i> Complainant Dossier
+            </h4>
+            <div class="mb-3">
+                <h5 class="text-white fw-bold mb-0">{{ fir.complainant_name }}</h5>
+                <span class="text-secondary fs-8">Dossier ID: #{{ fir.complainant_id }}</span>
+            </div>
+            <div class="mb-2">
+                <span class="text-secondary fs-8 text-uppercase d-block fw-semibold">Phone Contact</span>
+                <span class="text-white">{{ fir.complainant_phone }}</span>
+            </div>
+            <div class="mb-2">
+                <span class="text-secondary fs-8 text-uppercase d-block fw-semibold">Identification Proof</span>
+                <span class="badge bg-dark border border-secondary border-opacity-50 text-white font-monospace px-2 py-1 mt-1">
+                    {{ fir.id_proof_type }}: {{ fir.id_proof_number }}
+                </span>
+            </div>
+            <div class="mb-2">
+                <span class="text-secondary fs-8 text-uppercase d-block fw-semibold">Date of Birth</span>
+                <span class="text-secondary font-monospace fs-8">{{ fir.complainant_address }}</span>
+            </div>
+        </div>
+
+        <!-- Station / Officers assignment dossier card -->
+        <div class="card border border-secondary border-opacity-10 rounded-4 mb-4 p-4 shadow" style="background-color: var(--card-bg);">
+            <h4 class="text-white fw-bold mb-3 border-bottom border-secondary border-opacity-10 pb-2">
+                <i class="bi bi-building-shield text-indigo-300 me-2"></i> Precinct Details
+            </h4>
+            <div class="mb-3">
+                <span class="text-secondary fs-8 text-uppercase d-block fw-semibold">Filing Precinct Station</span>
+                <span class="text-white fw-bold">{{ fir.station_name }}</span>
+                <span class="text-secondary fs-8 d-block"><i class="bi bi-globe me-1"></i>{{ fir.station_district }}</span>
+            </div>
+            <div>
+                <span class="text-secondary fs-8 text-uppercase d-block fw-semibold">Assigned Officer</span>
+                <span class="text-white fw-bold">{{ fir.officer_name }}</span>
+                <span class="text-secondary fs-8 d-block"><i class="bi bi-patch-check-fill text-primary me-1"></i>{{ fir.officer_rank }} ({{ fir.officer_badge }})</span>
+                <span class="text-secondary fs-8 d-block">Contact: {{ fir.officer_contact }}</span>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

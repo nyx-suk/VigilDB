@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8 col-xl-7">
+        <!-- Back Button -->
+        <a href="/firs/{{ fir.fir_id if fir else accused.fir_id }}" class="btn btn-link text-secondary text-decoration-none px-0 mb-4">
+            <i class="bi bi-arrow-left me-2"></i> Back to Case Folder
+        </a>
+
+        <!-- Form Card Container -->
+        <div class="card border border-secondary border-opacity-10 rounded-4 shadow" style="background-color: var(--card-bg);">
+            <div class="card-header border-bottom border-secondary border-opacity-10 p-4" style="background-color: rgba(255, 255, 255, 0.01);">
+                <h3 class="text-white fw-bold mb-0">
+                    {% if accused %}
+                        <i class="bi bi-pencil-square text-info me-2"></i> Modify Suspect Record
+                    {% else %}
+                        <i class="bi bi-person-plus text-primary me-2" style="color: var(--primary-color) !important;"></i> Add Suspect Profile
+                    {% endif %}
+                </h3>
+                <p class="text-secondary mb-0 mt-1">
+                    {% if accused %}
+                        Modify suspect particulars for record #{{ accused.accused_id }}.
+                    {% else %}
+                        Enroll a new suspect node linked to Case Folder FIR #{{ fir.fir_id }}.
+                    {% endif %}
+                </p>
+            </div>
+            
+            <div class="card-body p-4">
+                <form action="{% if accused %}/accused/{{ accused.accused_id }}/edit{% else %}/firs/{{ fir.fir_id }}/accused/new{% endif %}" method="POST">
+                    
+                    <div class="row g-3">
+                        <!-- Suspect Name -->
+                        <div class="col-md-6">
+                            <label for="name" class="form-label text-secondary fw-semibold">Suspect Name <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control bg-dark border-secondary border-opacity-25 text-white rounded-3 px-3 py-2" id="name" name="name" 
+                                   placeholder="Full name of suspect" value="{{ accused.name if accused else '' }}" required>
+                        </div>
+                        
+                        <!-- Contact Phone -->
+                        <div class="col-md-6">
+                            <label for="contact" class="form-label text-secondary fw-semibold">Contact Phone</label>
+                            <input type="tel" class="form-control bg-dark border-secondary border-opacity-25 text-white rounded-3 px-3 py-2" id="contact" name="contact" 
+                                   placeholder="Phone number of suspect" value="{{ accused.contact if accused and accused.contact else '' }}">
+                        </div>
+                        
+                        <!-- Date of Birth -->
+                        <div class="col-md-6">
+                            <label for="dob" class="form-label text-secondary fw-semibold">Date of Birth</label>
+                            <input type="date" class="form-control bg-dark border-secondary border-opacity-25 text-white rounded-3 px-3 py-2" id="dob" name="dob" 
+                                   value="{{ accused.dob if accused and accused.dob else '' }}">
+                        </div>
+
+                        <!-- Prior Record Dropdown -->
+                        <div class="col-md-6">
+                            <label for="prior_record" class="form-label text-secondary fw-semibold">Prior Criminal Record <span class="text-danger">*</span></label>
+                            <select class="form-select bg-dark border-secondary border-opacity-25 text-white rounded-3 px-3 py-2" id="prior_record" name="prior_record" required>
+                                {% for r in ['Yes', 'No', 'Unknown'] %}
+                                    <option value="{{ r }}" {{ 'selected' if accused and accused.prior_record == r else ('selected' if not accused and r == 'Unknown' else '') }}>{{ r }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <!-- Arrest Status Dropdown -->
+                        <div class="col-md-6">
+                            <label for="arrest_status" class="form-label text-secondary fw-semibold">Arrest Status <span class="text-danger">*</span></label>
+                            <select class="form-select bg-dark border-secondary border-opacity-25 text-white rounded-3 px-3 py-2" id="arrest_status" name="arrest_status" required>
+                                {% for a in ['At Large', 'Arrested', 'Released on Bail'] %}
+                                    <option value="{{ a }}" {{ 'selected' if accused and accused.arrest_status == a else ('selected' if not accused and a == 'At Large' else '') }}>{{ a }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <!-- Conditionally Rendered DDL Column nationality -->
+                        {% if has_nationality %}
+                            <div class="col-md-6 bg-success bg-opacity-5 p-2 rounded-3 border border-success border-opacity-15">
+                                <label for="nationality" class="form-label text-success fw-bold">
+                                    <i class="bi bi-globe-americas me-1"></i> Nationality (Dynamic DDL Column)
+                                </label>
+                                <input type="text" class="form-control bg-dark border-success border-opacity-25 text-white rounded-3 px-3 py-2 fw-semibold" id="nationality" name="nationality" 
+                                       placeholder="e.g. Indian, Canadian..." value="{{ accused.nationality if accused and accused.nationality else '' }}">
+                                <div class="form-text text-secondary fs-8 mt-1">This input is active because the nationality column has been added to the database via DDL!</div>
+                            </div>
+                        {% endif %}
+
+                        <!-- Address -->
+                        <div class="col-md-12">
+                            <label for="address" class="form-label text-secondary fw-semibold">Address / Known Hideouts</label>
+                            <textarea class="form-control bg-dark border-secondary border-opacity-25 text-white rounded-3 px-3 py-2" id="address" name="address" 
+                                      rows="3" placeholder="Full postal residential address or location notes...">{{ accused.address if accused and accused.address else '' }}</textarea>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="mt-4 pt-3 border-top border-secondary border-opacity-10 d-flex justify-content-end gap-2">
+                        <a href="/firs/{{ fir.fir_id if fir else accused.fir_id }}" class="btn btn-outline-secondary px-4 py-2 rounded-3">Cancel</a>
+                        <button type="submit" class="btn btn-primary px-4 py-2 rounded-3" style="background-color: var(--primary-color); border: none;">
+                            <i class="bi bi-save me-2"></i> Save Profile
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

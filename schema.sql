@@ -29,6 +29,8 @@ CREATE TABLE officer (
     `rank` VARCHAR(50) NOT NULL,
     contact VARCHAR(15),
     email VARCHAR(100) NOT NULL UNIQUE,
+    password_hash VARCHAR(255),
+    role ENUM('admin','officer') DEFAULT 'officer',
     join_date DATE,
     CONSTRAINT fk_officer_station FOREIGN KEY (station_id) REFERENCES station(station_id) ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE=InnoDB;

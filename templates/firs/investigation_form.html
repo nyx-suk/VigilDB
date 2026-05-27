@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8 col-xl-7">
+        <!-- Back Button -->
+        <a href="/firs/{{ fir.fir_id }}" class="btn btn-link text-secondary text-decoration-none px-0 mb-4">
+            <i class="bi bi-arrow-left me-2"></i> Back to Case Folder
+        </a>
+
+        <!-- Form Card Container -->
+        <div class="card border border-secondary border-opacity-10 rounded-4 shadow" style="background-color: var(--card-bg);">
+            <div class="card-header border-bottom border-secondary border-opacity-10 p-4" style="background-color: rgba(255, 255, 255, 0.01);">
+                <h3 class="text-white fw-bold mb-0">
+                    <i class="bi bi-journal-plus text-primary me-2" style="color: var(--primary-color) !important;"></i> Append Case Progress Log
+                </h3>
+                <p class="text-secondary mb-0 mt-1">
+                    Log an investigational event or procedural update in Case Folder FIR #{{ fir.fir_id }} ({{ fir.crime_type }}).
+                </p>
+            </div>
+            
+            <div class="card-body p-4">
+                <form action="/firs/{{ fir.fir_id }}/investigation/new" method="POST">
+                    
+                    <div class="row g-3">
+                        <!-- Logged By Officer Select -->
+                        <div class="col-md-6">
+                            <label for="officer_id" class="form-label text-secondary fw-semibold">Reporting Officer <span class="text-danger">*</span></label>
+                            <select class="form-select bg-dark border-secondary border-opacity-25 text-white rounded-3 px-3 py-2" id="officer_id" name="officer_id" required>
+                                <option value="" disabled selected>Select Reporting Officer</option>
+                                {% for o in officers %}
+                                    <option value="{{ o.officer_id }}">{{ o.name }} ({{ o.badge_number }})</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <!-- Outcome Milestone Dropdown -->
+                        <div class="col-md-6">
+                            <label for="outcome" class="form-label text-secondary fw-semibold">Outcome Milestone <span class="text-danger">*</span></label>
+                            <select class="form-select bg-dark border-secondary border-opacity-25 text-white rounded-3 px-3 py-2" id="outcome" name="outcome" required>
+                                {% for out in ['Pending', 'Solved', 'Unsolved', 'Referred'] %}
+                                    <option value="{{ out }}" {{ 'selected' if out == 'Pending' else '' }}>{{ out }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <!-- Next Action -->
+                        <div class="col-md-6">
+                            <label for="next_action" class="form-label text-secondary fw-semibold">Scheduled Next Action</label>
+                            <input type="text" class="form-control bg-dark border-secondary border-opacity-25 text-white rounded-3 px-3 py-2" id="next_action" name="next_action" 
+                                   placeholder="e.g. Interrogate witness, submit forensic report">
+                        </div>
+
+                        <!-- Next Hearing Date -->
+                        <div class="col-md-6">
+                            <label for="next_hearing_date" class="form-label text-secondary fw-semibold">Next Scheduled Hearing Date</label>
+                            <input type="date" class="form-control bg-dark border-secondary border-opacity-25 text-white rounded-3 px-3 py-2" id="next_hearing_date" name="next_hearing_date">
+                        </div>
+
+                        <!-- Remarks/Narrative -->
+                        <div class="col-md-12">
+                            <label for="remarks" class="form-label text-secondary fw-semibold">Audit Remarks / Progress Narrative <span class="text-danger">*</span></label>
+                            <textarea class="form-control bg-dark border-secondary border-opacity-25 text-white rounded-3 px-3 py-2" id="remarks" name="remarks" 
+                                      rows="4" placeholder="Detail standard progress made during the investigation interval..." required></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="mt-4 pt-3 border-top border-secondary border-opacity-10 d-flex justify-content-end gap-2">
+                        <a href="/firs/{{ fir.fir_id }}" class="btn btn-outline-secondary px-4 py-2 rounded-3">Cancel</a>
+                        <button type="submit" class="btn btn-primary px-4 py-2 rounded-3" style="background-color: var(--primary-color); border: none;">
+                            <i class="bi bi-journal-check me-2"></i> Append Timeline Log
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% block scripts %}
+<script>
+    // Set default collected date to today's local date
+    document.getElementById('log_date').value = new Date().toISOString().split('T')[0];
+</script>
+{% endblock %}
+{% endblock %}

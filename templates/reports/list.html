@@ -1,0 +1,210 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row mb-4 align-items-center">
+    <div class="col-sm-12">
+        <h2 class="text-white fw-bold mb-0">
+            <i class="bi bi-graph-up-arrow text-indigo-400 me-2"></i> Statistical Audits & Database Reports
+        </h2>
+        <p class="text-secondary mb-0">Review system analytics, verify trigger execution, and execute live DDL commands.</p>
+    </div>
+</div>
+
+<!-- TOP GRID: SQL View & Analytical Charts -->
+<div class="row g-4 mb-4">
+    <!-- Crime Type Statistics Card -->
+    <div class="col-md-6">
+        <div class="card border border-secondary border-opacity-10 rounded-4 p-4 shadow" style="background-color: var(--card-bg); height: 100%;">
+            <h4 class="text-white fw-bold mb-3 border-bottom border-secondary border-opacity-10 pb-2">
+                <i class="bi bi-pie-chart-fill text-indigo-300 me-2"></i> Crime Type Distribution
+            </h4>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0" style="color: var(--text-primary);">
+                    <thead>
+                        <tr class="text-secondary fs-8 border-bottom border-secondary border-opacity-10">
+                            <th>Crime Category</th>
+                            <th class="text-end" style="width: 100px;">Active Cases</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for stat in crime_stats %}
+                            <tr style="border-bottom: 1px solid rgba(255,255,255,0.03);">
+                                <td class="text-white fw-semibold">{{ stat.crime_type }}</td>
+                                <td class="text-end fw-bold text-indigo-400">
+                                    <span class="badge bg-indigo-500 bg-opacity-10 text-indigo-300 px-3 py-1 font-monospace">{{ stat.count }}</span>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Suspect Arrest Status Distribution -->
+    <div class="col-md-6">
+        <div class="card border border-secondary border-opacity-10 rounded-4 p-4 shadow" style="background-color: var(--card-bg); height: 100%;">
+            <h4 class="text-white fw-bold mb-3 border-bottom border-secondary border-opacity-10 pb-2">
+                <i class="bi bi-bar-chart-steps text-indigo-300 me-2"></i> Suspect Placement Audit
+            </h4>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0" style="color: var(--text-primary);">
+                    <thead>
+                        <tr class="text-secondary fs-8 border-bottom border-secondary border-opacity-10">
+                            <th>Arrest Status</th>
+                            <th class="text-end" style="width: 100px;">Accused Nodes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for stat in arrest_stats %}
+                            <tr style="border-bottom: 1px solid rgba(255,255,255,0.03);">
+                                <td class="fw-semibold text-white">
+                                    {% if stat.arrest_status == 'Arrested' %}
+                                        <i class="bi bi-circle-fill text-success me-2" style="font-size: 0.6rem;"></i> Arrested
+                                    {% elif stat.arrest_status == 'Released on Bail' %}
+                                        <i class="bi bi-circle-fill text-warning me-2" style="font-size: 0.6rem;"></i> Released on Bail
+                                    {% else %}
+                                        <i class="bi bi-circle-fill text-danger me-2" style="font-size: 0.6rem;"></i> At Large
+                                    {% endif %}
+                                </td>
+                                <td class="text-end fw-bold text-indigo-400">
+                                    <span class="badge bg-dark border border-secondary border-opacity-50 text-white px-3 py-1 font-monospace">{{ stat.count }}</span>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- CORE SQL VIEW CARD: open_firs view display -->
+<div class="row mb-4">
+    <div class="col-lg-12">
+        <div class="card border border-secondary border-opacity-10 rounded-4 overflow-hidden shadow" style="background-color: var(--card-bg);">
+            <div class="card-header border-bottom border-secondary border-opacity-10 p-4" style="background-color: rgba(255, 255, 255, 0.01);">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h4 class="text-white fw-bold mb-0">
+                            <i class="bi bi-database-check text-indigo-300 me-2"></i> SQL View: <code>open_firs</code>
+                        </h4>
+                        <p class="text-secondary mb-0 mt-1">Queries active cases (`Open`, `Under Investigation`) utilizing the pre-compiled MySQL View schema.</p>
+                    </div>
+                    <span class="badge bg-indigo-500 text-white px-3 py-2 border border-secondary border-opacity-35 font-monospace">SELECT * FROM open_firs;</span>
+                </div>
+            </div>
+            
+            <div class="card-body p-0">
+                {% if open_cases %}
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0" style="color: var(--text-primary);">
+                            <thead style="background-color: rgba(255,255,255,0.01); border-bottom: 1px solid rgba(255,255,255,0.05);">
+                                <tr>
+                                    <th class="px-4 py-3 text-secondary text-uppercase fs-8" style="width: 80px;">ID</th>
+                                    <th class="py-3 text-secondary text-uppercase fs-8">Classification</th>
+                                    <th class="py-3 text-secondary text-uppercase fs-8">Complainant</th>
+                                    <th class="py-3 text-secondary text-uppercase fs-8">Assigned Officer</th>
+                                    <th class="py-3 text-secondary text-uppercase fs-8">Precinct Station</th>
+                                    <th class="py-3 text-secondary text-uppercase fs-8" style="width: 150px;">Status</th>
+                                    <th class="px-4 py-3 text-secondary text-uppercase fs-8 text-center" style="width: 130px;">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for case in open_cases %}
+                                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.03);">
+                                        <td class="px-4 fw-bold text-secondary">#{{ case.fir_id }}</td>
+                                        <td class="fw-semibold text-white">
+                                            {{ case.crime_type }}
+                                            <div class="text-secondary" style="font-size: 0.75rem;">Incident: {{ case.incident_date }}</div>
+                                        </td>
+                                        <td class="text-secondary fs-8">
+                                            <div class="fw-semibold text-white">{{ case.complainant_name }}</div>
+                                            <div>Call: {{ case.complainant_phone }}</div>
+                                        </td>
+                                        <td class="text-secondary fs-8">
+                                            <div class="fw-semibold text-white">{{ case.officer_name }}</div>
+                                            <div>Badge: {{ case.officer_badge }}</div>
+                                        </td>
+                                        <td class="text-secondary fs-8">
+                                            <div class="fw-semibold text-white">{{ case.station_name }}</div>
+                                            <div>District: {{ case.station_district }}</div>
+                                        </td>
+                                        <td>
+                                            {% if case.status == 'Open' %}
+                                                <span class="badge bg-primary bg-opacity-15 text-primary border border-primary border-opacity-25 px-2 py-1 fs-8">Open</span>
+                                            {% else %}
+                                                <span class="badge bg-warning bg-opacity-15 text-warning border border-warning border-opacity-25 px-2 py-1 fs-8">Under Investigation</span>
+                                            {% endif %}
+                                        </td>
+                                        <td class="px-4 text-center">
+                                            <a href="/firs/{{ case.fir_id }}" class="btn btn-outline-indigo btn-sm px-3 rounded-2" style="border-color: var(--primary-color); color: var(--primary-color);">
+                                                <i class="bi bi-folder-open"></i> Case
+                                            </a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="p-5 text-center">
+                        <p class="text-secondary mb-0">No active cases registered under open_firs View.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- DDL SCHEMA ALTERATION DEMO CARD -->
+<div class="row">
+    <div class="col-lg-12">
+        <div class="card border border-secondary border-opacity-10 rounded-4 p-4 shadow" style="background-color: var(--card-bg);">
+            <div class="row align-items-center">
+                <div class="col-lg-8">
+                    <h4 class="text-white fw-bold mb-1">
+                        <i class="bi bi-terminal-fill text-success me-2"></i> Live DDL Schema Alteration Demo
+                    </h4>
+                    <p class="text-secondary mb-3">Demonstrates DDL capabilities in MySQL directly from the front-end interface.</p>
+                    
+                    {% if has_nationality %}
+                        <!-- Active Column Banner -->
+                        <div class="alert alert-success bg-success bg-opacity-5 border border-success border-opacity-15 p-3 rounded-3 d-flex align-items-center mb-0">
+                            <i class="bi bi-check-circle-fill text-success me-3 fs-4"></i>
+                            <div>
+                                <span class="fw-bold text-success text-uppercase d-block mb-1">Column `nationality` is Active in table `accused`</span>
+                                <span class="text-secondary fs-8">The database structure was modified dynamically via: <code>ALTER TABLE accused ADD COLUMN nationality VARCHAR(50);</code>. Accused profile edit files now dynamically include active fields for Nationality.</span>
+                            </div>
+                        </div>
+                    {% else %}
+                        <!-- Inactive Column Banner -->
+                        <div class="alert alert-warning bg-warning bg-opacity-5 border border-warning border-opacity-15 p-3 rounded-3 d-flex align-items-center mb-0">
+                            <i class="bi bi-info-circle-fill text-warning me-3 fs-4"></i>
+                            <div>
+                                <span class="fw-bold text-warning text-uppercase d-block mb-1">Column `nationality` is Absent from table `accused`</span>
+                                <span class="text-secondary fs-8">The table matches its default schema script. Press the toggle button on the right to perform live DDL restructuring.</span>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Toggle Button form -->
+                <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
+                    <form action="/reports/alter" method="POST">
+                        {% if has_nationality %}
+                            <button type="submit" class="btn btn-danger px-4 py-3 rounded-3 shadow fw-bold w-100 w-lg-auto">
+                                <i class="bi bi-trash3-fill me-2"></i> DROP nationality COLUMN (DDL)
+                            </button>
+                        {% else %}
+                            <button type="submit" class="btn btn-success px-4 py-3 rounded-3 shadow fw-bold w-100 w-lg-auto" style="background-color: var(--secondary-color); border: none;">
+                                <i class="bi bi-plus-square-fill me-2"></i> ADD nationality COLUMN (DDL)
+                            </button>
+                        {% endif %}
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

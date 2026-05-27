@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8 col-xl-7">
+        <!-- Back Button -->
+        <a href="/firs/{{ fir_id }}" class="btn btn-link text-secondary text-decoration-none px-0 mb-4">
+            <i class="bi bi-arrow-left me-2"></i> Back to FIR Detail
+        </a>
+
+        <!-- Form Card Container -->
+        <div class="card border border-secondary border-opacity-10 rounded-4 shadow" style="background-color: var(--card-bg);">
+            <div class="card-header border-bottom border-secondary border-opacity-10 p-4" style="background-color: rgba(255, 255, 255, 0.01);">
+                <h3 class="text-white fw-bold mb-0">
+                    {% if evidence %}
+                        <i class="bi bi-pencil-square text-info me-2"></i> Edit Evidence Record
+                    {% else %}
+                        <i class="bi bi-plus-circle text-primary me-2" style="color: var(--primary-color) !important;"></i> Log Evidence
+                    {% endif %}
+                </h3>
+                <p class="text-secondary mb-0 mt-1">
+                    {% if evidence %}
+                        Update evidence details for record #{{ evidence.evidence_id }}.
+                    {% else %}
+                        Log a new evidence item linked to FIR #{{ fir_id }}.
+                    {% endif %}
+                </p>
+            </div>
+            
+            <div class="card-body p-4">
+                <form action="{% if evidence %}/evidence/{{ evidence.evidence_id }}/edit{% else %}/firs/{{ fir_id }}/evidence/new{% endif %}" method="POST">
+                    <!-- Hidden field for fir_id -->
+                    <input type="hidden" name="fir_id" value="{{ fir_id }}">
+                    
+                    <div class="row g-3">
+                        <!-- Evidence Type Dropdown -->
+                        <div class="col-md-6">
+                            <label for="type" class="form-label text-secondary fw-semibold">Evidence Type <span class="text-danger">*</span></label>
+                            <select class="form-select bg-dark border-secondary border-opacity-25 text-white rounded-3 px-3 py-2" id="type" name="type" required>
+                                <option value="" disabled {{ 'selected' if not evidence else '' }}>Select Type</option>
+                                {% for t in ['Physical', 'Digital', 'Witness Statement', 'Forensic', 'Document'] %}
+                                    <option value="{{ t }}" {{ 'selected' if evidence and evidence.type == t else '' }}>{{ t }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <!-- Collected Date -->
+                        <div class="col-md-6">
+                            <label for="collected_date" class="form-label text-secondary fw-semibold">Collected Date <span class="text-danger">*</span></label>
+                            <input type="date" class="form-control bg-dark border-secondary border-opacity-25 text-white rounded-3 px-3 py-2" id="collected_date" name="collected_date" 
+                                   value="{{ evidence.collected_date if evidence else '' }}" required>
+                        </div>
+
+                        <!-- Collected By Officer Select -->
+                        <div class="col-md-6">
+                            <label for="collected_by" class="form-label text-secondary fw-semibold">Collected By <span class="text-danger">*</span></label>
+                            <select class="form-select bg-dark border-secondary border-opacity-25 text-white rounded-3 px-3 py-2" id="collected_by" name="collected_by" required>
+                                <option value="" disabled {{ 'selected' if not evidence else '' }}>Select Officer</option>
+                                {% for o in officers %}
+                                    <option value="{{ o.officer_id }}" {{ 'selected' if evidence and evidence.collected_by == o.officer_id else '' }}>
+                                        {{ o.name }} ({{ o.badge_number }})
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <!-- Storage Location -->
+                        <div class="col-md-6">
+                            <label for="storage_location" class="form-label text-secondary fw-semibold">Storage Location</label>
+                            <input type="text" class="form-control bg-dark border-secondary border-opacity-25 text-white rounded-3 px-3 py-2" id="storage_location" name="storage_location" 
+                                   placeholder="e.g. locker room, lab locker" value="{{ evidence.storage_location if evidence and evidence.storage_location else '' }}">
+                        </div>
+
+                        <!-- Status Dropdown -->
+                        <div class="col-md-12">
+                            <label for="status" class="form-label text-secondary fw-semibold">Status <span class="text-danger">*</span></label>
+                            <select class="form-select bg-dark border-secondary border-opacity-25 text-white rounded-3 px-3 py-2" id="status" name="status" required>
+                                {% for s in ['Active', 'Submitted to Court', 'Disposed'] %}
+                                    <option value="{{ s }}" {{ 'selected' if evidence and evidence.status == s else ('selected' if not evidence and s == 'Active' else '') }}>{{ s }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <!-- Description Textarea -->
+                        <div class="col-md-12">
+                            <label for="description" class="form-label text-secondary fw-semibold">Description <span class="text-danger">*</span></label>
+                            <textarea class="form-control bg-dark border-secondary border-opacity-25 text-white rounded-3 px-3 py-2" id="description" name="description" 
+                                      rows="3" placeholder="Detailed description of the evidence item..." required>{{ evidence.description if evidence else '' }}</textarea>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="mt-4 pt-3 border-top border-secondary border-opacity-10 d-flex justify-content-end gap-2">
+                        <a href="/firs/{{ fir_id }}" class="btn btn-outline-secondary px-4 py-2 rounded-3">Cancel</a>
+                        <button type="submit" class="btn btn-primary px-4 py-2 rounded-3" style="background-color: var(--primary-color); border: none;">
+                            <i class="bi bi-save me-2"></i> Submit
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

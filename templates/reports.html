@@ -1,0 +1,190 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- Section 1 — VIEW output -->
+<div class="row mb-5">
+    <div class="col-lg-12">
+        <h3 class="text-white fw-bold mb-3">
+            <i class="bi bi-eye text-indigo-400 me-2"></i> Open & Active FIRs (via SQL VIEW open_firs)
+        </h3>
+        
+        <!-- View definition code block -->
+        <div class="mb-4">
+            <span class="text-secondary fs-8 text-uppercase fw-semibold d-block mb-1">MySQL VIEW Schema Definition</span>
+            <pre class="bg-dark border border-secondary border-opacity-15 rounded-3 p-3 text-success font-monospace fs-8" style="max-height: 250px; overflow-y: auto;">
+CREATE VIEW open_firs AS
+SELECT 
+    f.fir_id,
+    f.crime_type,
+    f.incident_date,
+    f.incident_location,
+    f.status,
+    f.filing_date,
+    c.name AS complainant_name,
+    c.phone AS complainant_phone,
+    o.name AS officer_name,
+    o.badge_number AS officer_badge,
+    s.name AS station_name,
+    s.district AS station_district
+FROM fir f
+JOIN complainant c ON f.complainant_id = c.complainant_id
+JOIN officer o ON f.officer_id = o.officer_id
+JOIN station s ON f.station_id = s.station_id
+WHERE f.status IN ('Open', 'Under Investigation');
+            </pre>
+        </div>
+
+        <div class="card border border-secondary border-opacity-10 rounded-4 overflow-hidden" style="background-color: var(--card-bg);">
+            <div class="card-body p-0">
+                {% if open_firs_rows %}
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0" style="color: var(--text-primary);">
+                            <thead style="background-color: rgba(255,255,255,0.02); border-bottom: 1px solid rgba(255,255,255,0.08);">
+                                <tr>
+                                    <th class="px-4 py-3 text-secondary text-uppercase fs-8" style="width: 80px;">FIR ID</th>
+                                    <th class="py-3 text-secondary text-uppercase fs-8">Crime Type</th>
+                                    <th class="py-3 text-secondary text-uppercase fs-8">Complainant</th>
+                                    <th class="py-3 text-secondary text-uppercase fs-8">Officer</th>
+                                    <th class="py-3 text-secondary text-uppercase fs-8">Station</th>
+                                    <th class="py-3 text-secondary text-uppercase fs-8">Incident Date</th>
+                                    <th class="py-3 text-secondary text-uppercase fs-8">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for row in open_firs_rows %}
+                                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                                        <td class="px-4 fw-bold text-secondary">#{{ row.fir_id }}</td>
+                                        <td class="fw-semibold text-white">{{ row.crime_type }}</td>
+                                        <td class="text-secondary">
+                                            <div>{{ row.complainant_name }}</div>
+                                            <div class="fs-8 text-secondary-50">Call: {{ row.complainant_phone }}</div>
+                                        </td>
+                                        <td class="text-secondary">
+                                            <div>{{ row.officer_name }}</div>
+                                            <div class="fs-8 text-secondary-50">Badge: {{ row.officer_badge }}</div>
+                                        </td>
+                                        <td class="text-secondary">
+                                            <div>{{ row.station_name }}</div>
+                                            <div class="fs-8 text-secondary-50">District: {{ row.station_district }}</div>
+                                        </td>
+                                        <td class="text-secondary font-monospace fs-8">{{ row.incident_date }}</td>
+                                        <td>
+                                            {% if row.status == 'Open' %}
+                                                <span class="badge bg-primary bg-opacity-15 text-primary border border-primary border-opacity-25 px-2 py-1 fs-8">Open</span>
+                                            {% else %}
+                                                <span class="badge bg-warning bg-opacity-15 text-warning border border-warning border-opacity-25 px-2 py-1 fs-8">Under Investigation</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="p-5 text-center">
+                        <p class="text-secondary mb-0">No open FIRs at this time</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Section 2 — ALTER TABLE demo -->
+<div class="row mb-5">
+    <div class="col-lg-12">
+        <div class="card border border-secondary border-opacity-10 rounded-4 p-4 shadow" style="background-color: var(--card-bg);">
+            <h3 class="text-white fw-bold mb-3 border-bottom border-secondary border-opacity-10 pb-2">
+                <i class="bi bi-sliders text-indigo-400 me-2"></i> ALTER TABLE Demo — accused table
+            </h3>
+            
+            <div class="d-flex align-items-center mb-4">
+                <span class="text-secondary fw-semibold me-3">Current Schema Status:</span>
+                {% if nationality_exists %}
+                    <span class="badge bg-success bg-opacity-15 text-success border border-success border-opacity-20 px-3 py-2 rounded-pill fw-bold">
+                        <i class="bi bi-check-circle-fill me-1"></i> Column nationality is ACTIVE in schema
+                    </span>
+                {% else %}
+                    <span class="badge bg-secondary bg-opacity-15 text-secondary border border-secondary border-opacity-25 px-3 py-2 rounded-pill fw-bold">
+                        <i class="bi bi-x-circle-fill me-1"></i> Column nationality is NOT in schema
+                    </span>
+                {% endif %}
+            </div>
+
+            <!-- DDL Actions -->
+            <div class="d-flex flex-wrap gap-2 mb-3">
+                <!-- Add nationality Button Form -->
+                <form action="/reports/alter/add-nationality" method="POST" class="mb-0">
+                    <button type="submit" class="btn btn-success px-4 py-2 rounded-3 fw-bold" 
+                            {% if nationality_exists %}disabled title="Nationality column already exists in table accused" data-bs-toggle="tooltip" data-bs-placement="top"{% endif %}
+                            {% if not nationality_exists %}style="background-color: var(--secondary-color); border: none;"{% endif %}>
+                        <i class="bi bi-plus-square-fill me-2"></i> Add nationality Column
+                    </button>
+                </form>
+
+                <!-- Drop nationality Button Form -->
+                <form action="/reports/alter/drop-nationality" method="POST" class="mb-0">
+                    <button type="submit" class="btn btn-danger px-4 py-2 rounded-3 fw-bold"
+                            {% if not nationality_exists %}disabled title="Nationality column does not exist in table accused" data-bs-toggle="tooltip" data-bs-placement="top"{% endif %}>
+                        <i class="bi bi-trash-fill me-2"></i> Drop nationality Column
+                    </button>
+                </form>
+            </div>
+            
+            <p class="text-secondary fs-8 mb-0 mt-2">
+                <i class="bi bi-info-circle text-info me-1"></i> <strong>Note:</strong> After adding the column, navigate to any Accused edit form — the Nationality field will appear automatically
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- Section 3 — Crime Type Breakdown -->
+<div class="row">
+    <div class="col-lg-12">
+        <h3 class="text-white fw-bold mb-3">
+            <i class="bi bi-bar-chart text-indigo-400 me-2"></i> FIR Count by Crime Type
+        </h3>
+        
+        <div class="card border border-secondary border-opacity-10 rounded-4 overflow-hidden shadow" style="background-color: var(--card-bg);">
+            <div class="card-body p-0">
+                {% if crime_stats %}
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0" style="color: var(--text-primary);">
+                            <thead style="background-color: rgba(255,255,255,0.02); border-bottom: 1px solid rgba(255,255,255,0.08);">
+                                <tr>
+                                    <th class="px-4 py-3 text-secondary text-uppercase fs-8">Crime Type</th>
+                                    <th class="px-4 py-3 text-secondary text-uppercase fs-8 text-end" style="width: 150px;">Total FIRs</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for stat in crime_stats %}
+                                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                                        <td class="px-4 fw-semibold text-white">{{ stat.crime_type }}</td>
+                                        <td class="px-4 text-end font-monospace fw-bold text-indigo-400">
+                                            <span class="badge bg-indigo-500 bg-opacity-10 text-indigo-300 px-3 py-1 font-monospace">{{ stat.total }}</span>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="p-4 text-center">
+                        <p class="text-secondary mb-0">No crime logs exist in the records yet.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Tooltips script -->
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl)
+        })
+    });
+</script>
+{% endblock %}
